@@ -2,33 +2,103 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PilotSky1533512 Official Site</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
-<body class="light-mode"> <header>
+<body class="dark-mode"> <header>
         <h1>PilotSky1533512</h1>
         <button id="mode-toggle">明 / 暗 切り替え</button>
     </header>
 
-    <section id="announcement">
-        <h2>お知らせ</h2>
-        <p>最新ニュースがここに表示されます。</p>
-    </section>
-
-    <section id="download">
-        <h2>ダウンロード</h2>
-        <button class="dl-btn">最新版をダウンロード</button>
-    </section>
-
-    <section id="discord">
-        <h2>Discord状況</h2>
-        <p>サーバー稼働中...</p>
-    </section>
-
-    <section id="recruitment">
-        <h2>運営募集</h2>
-        <p>リキャプチャ（Google reCAPTCHA）を導入して、bot対策済みのフォームを設置予定。</p>
+    <main>
+        <section id="announcement">
+            <h2>お知らせ</h2>
+            <div id="news-list">
+                <ul>
+                    <li><strong>2026/03/14</strong> - 公式サイトを公開しました！</li>
+                </ul>
+            </div>
         </section>
+
+        <section id="download">
+            <h2>ダウンロード</h2>
+            <p>最新のツールやアドオンはこちらからダウンロードできます。</p>
+            <a href="app.zip" download="PilotSky_Latest">
+                <button class="dl-btn">最新版をダウンロード (.zip)</button>
+            </a>
+        </section>
+
+        <section id="discord">
+            <h2>Discord状況</h2>
+            <p>Pilo Server に参加して交流しましょう！</p>
+            <div style="margin-bottom: 20px;">
+                <a href="https://x.gd/pirodiscord" target="_blank" rel="noopener noreferrer">
+                    <button style="background-color: #5865F2; width: 100%; font-size: 1.1em; padding: 12px;">
+                        Discordサーバーに参加する
+                    </button>
+                </a>
+            </div>
+            <iframe src="https://discord.com/widget?id=1373198137811800084&theme=dark" 
+                    width="100%" 
+                    height="400" 
+                    allowtransparency="true" 
+                    frameborder="0" 
+                    sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts">
+            </iframe>
+        </section>
+
+        <section id="recruitment">
+            <h2>運営募集</h2>
+            <p>チームの一員として活動してくれる方を募集しています。</p>
+            <form action="https://formspree.io/f/あなたのフォームID" method="POST">
+                <div class="form-group">
+                    <label>メールアドレス (任意)</label>
+                    <input type="email" name="email" placeholder="example@mail.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Discord名 (必須)</label>
+                    <input type="text" name="discord_name" required placeholder="user#0000">
+                </div>
+
+                <div class="form-group">
+                    <label>希望役職 (複数選択可)</label>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" name="role" value="Minecraft"> Minecraft</label>
+                        <label><input type="checkbox" name="role" value="Discord"> Discord</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>運営になりたい理由</label>
+                    <textarea name="reason" required rows="5" placeholder="意気込みを書いてください"></textarea>
+                </div>
+
+                <div class="g-recaptcha" data-sitekey="6LfrtoksAAAAAKgcW-iJKU7y9EwjmGNMpa1XJEns" style="margin-bottom: 15px;"></div>
+
+                <button type="submit" class="submit-btn">送信する</button>
+            </form>
+        </section>
+    </main>
+
+    <footer>
+        <div class="admin-link">
+            <a href="#" onclick="showLogin()">管理者ログイン</a>
+        </div>
+        <p>©2026 PilotSkyTEAM</p>
+    </footer>
+
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <h3>管理者ログイン</h3>
+            <input type="text" id="admin-id" placeholder="ID">
+            <input type="password" id="admin-pass" placeholder="Password">
+            <button onclick="checkLogin()">ログイン</button>
+            <button onclick="hideLogin()" style="background: #666;">閉じる</button>
+        </div>
+    </div>
 
     <script src="script.js"></script>
 </body>
