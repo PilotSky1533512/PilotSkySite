@@ -1,6 +1,8 @@
-const RAW_PASS = "rockopenit2mv9mt4ihqnym0wefa";
-const ADMIN_ID = "PilotSky1533512";
+// テスト用にパスワードを「1234」にしています
+const RAW_PASS = "1234";
+const ADMIN_ID = "pilo";
 
+// モード切り替え
 document.getElementById('mode-toggle').addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
 });
@@ -17,11 +19,15 @@ function checkLogin() {
     const id = document.getElementById('admin-id').value.trim();
     const pass = document.getElementById('admin-pass').value.trim();
 
+    // 入力された値を画面に表示して確認する
+    console.log("入力ID:", id);
+    console.log("入力パス:", pass);
+
     if (id === ADMIN_ID && pass === RAW_PASS) {
-        alert("成功");
+        alert("成功！admin.htmlへ飛びます");
         window.location.href = "admin.html";
     } else {
-        alert("失敗");
+        alert("失敗\n入力されたID: " + id + "\n入力されたパス: " + pass);
     }
 }
 
