@@ -1,68 +1,132 @@
-/* 基本設定 */
+/* 変数の設定（色を管理しやすくします） */
 :root {
     --bg-color: #ffffff;
-    --text-color: #333333;
+    --text-color: #222222;
     --accent-color: #007bff;
-    --section-bg: #f4f4f4;
+    --section-bg: #f9f9f9;
+    --header-bg: #eeeeee;
 }
 
-/* ダークモード用の色定義 */
+/* ダークモードの色設定 */
 body.dark-mode {
-    --bg-color: #1a1a1a;
+    --bg-color: #121212;
     --text-color: #e0e0e0;
     --accent-color: #3793ff;
-    --section-bg: #2d2d2d;
+    --section-bg: #1e1e1e;
+    --header-bg: #2d2d2d;
 }
 
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     line-height: 1.6;
     margin: 0;
-    transition: 0.3s; /* 切り替えをスムーズに */
+    padding: 0;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-/* ヘッダー */
 header {
+    background: var(--header-bg);
+    padding: 20px 5%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 5%;
-    background: var(--accent-color);
-    color: white;
+    border-bottom: 2px solid var(--accent-color);
 }
 
-/* セクション共通 */
+main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
 section {
-    padding: 40px 5%;
-    margin: 20px auto;
-    max-width: 800px;
     background: var(--section-bg);
-    border-radius: 10px;
+    margin-bottom: 30px;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-/* ボタンのデザイン */
+h2 {
+    border-left: 5px solid var(--accent-color);
+    padding-left: 15px;
+    margin-top: 0;
+}
+
+/* ボタン共通 */
 button {
     padding: 10px 20px;
     cursor: pointer;
     border: none;
-    border-radius: 5px;
-    background: var(--accent-color);
-    color: white;
+    border-radius: 6px;
     font-weight: bold;
+    transition: 0.2s;
 }
 
 button:hover {
     opacity: 0.8;
 }
 
-/* 明暗切り替えボタンの特別スタイル */
-#mode-toggle {
-    background: #444;
+.dl-btn {
+    background-color: #28a745;
+    color: white;
 }
 
-body.dark-mode #mode-toggle {
-    background: #eee;
-    color: #333;
+.submit-btn {
+    background-color: var(--accent-color);
+    color: white;
+    width: 100%;
+}
+
+/* フォーム関連 */
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+input[type="text"], input[type="email"], input[type="password"], textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background: var(--bg-color);
+    color: var(--text-color);
+    box-sizing: border-box; /* 幅がはみ出さないように */
+}
+
+.checkbox-group {
+    display: flex;
+    gap: 15px;
+}
+
+/* フッター */
+footer {
+    text-align: center;
+    padding: 40px 0;
+    font-size: 0.9em;
+}
+
+/* 管理者ログインモーダル */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.7);
+}
+
+.modal-content {
+    background-color: var(--section-bg);
+    margin: 15% auto;
+    padding: 30px;
+    width: 300px;
+    border-radius: 10px;
+    text-align: center;
 }
