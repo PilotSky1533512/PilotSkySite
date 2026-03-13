@@ -1,1 +1,103 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>PilotSky 管理者パネル</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .admin-box { border: 2px solid #555; padding: 20px; margin-bottom: 20px; border-radius: 10px; }
+        .announcement-item { background: #eee; color: #333; padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        textarea { width: 100%; }
+        .secret-code { background: #222; color: #0f0; padding: 15px; overflow-x: auto; font-family: monospace; }
+    </style>
+</head>
+<body class="dark-mode"> <header>
+        <h1>管理者専用パネル</h1>
+        <a href="index.html" style="color: white;">サイトへ戻る</a>
+    </header>
 
+    <main style="padding: 20px;">
+        <section class="admin-box">
+            <h2>運営募集履歴</h2>
+            <p>募集内容は Formspree の管理画面で安全に保管されています。</p>
+            <a href="https://formspree.io/forms" target="_blank">
+                <button style="background: #28a745;">Formspree 受信箱を確認する</button>
+            </a>
+        </section>
+
+        <section class="admin-box">
+            <h2>お知らせ設定</h2>
+            <div id="announcement-list">
+                </div>
+            
+            <hr>
+            <h3>新しいお知らせを追加 / 編集</h3>
+            <input type="text" id="news-title" placeholder="タイトル" style="width: 100%; margin-bottom: 10px;"><br>
+            <textarea id="news-content" rows="3" placeholder="内容"></textarea><br>
+            <button onclick="addNews()">追加 / 更新</button>
+
+            <hr>
+            <h3>【重要】サイトへの反映方法</h3>
+            <p>編集が終わったら下のコードをコピーして、index.html のお知らせ部分に貼り付けてください。</p>
+            <div class="secret-code" id="output-code">
+                </div>
+        </section>
+    </main>
+
+    <script>
+        let newsData = [
+            { title: "サイト公開", content: "PilotSky1533512の公式サイトを公開しました。" }
+        ];
+
+        function renderNews() {
+            const list = document.getElementById('announcement-list');
+            const output = document.getElementById('output-code');
+            list.innerHTML = '';
+            let htmlCode = "<ul>\n";
+
+            newsData.forEach((item, index) => {
+                // 管理画面用のリスト
+                list.innerHTML += `
+                    <div class="announcement-item">
+                        <span><strong>${item.title}</strong>: ${item.content}</span>
+                        <div>
+                            <button onclick="editNews(${index})">編集</button>
+                            <button onclick="deleteNews(${index})" style="background:#dc3545;">削除</button>
+                        </div>
+                    </div>`;
+                
+                // サイト貼り付け用のコード生成
+                htmlCode += `  <li><strong>${item.title}</strong> - ${item.content}</li>\n`;
+            });
+
+            htmlCode += "</ul>";
+            output.innerText = htmlCode;
+        }
+
+        function addNews() {
+            const title = document.getElementById('news-title').value;
+            const content = document.getElementById('news-content').value;
+            if(!title || !content) return alert("入力してください");
+
+            newsData.push({ title, content });
+            renderNews();
+            
+            document.getElementById('news-title').value = '';
+            document.getElementById('news-content').value = '';
+        }
+
+        function deleteNews(index) {
+            newsData.splice(index, 1);
+            renderNews();
+        }
+
+        function editNews(index) {
+            document.getElementById('news-title').value = newsData[index].title;
+            document.getElementById('news-content').value = newsData[index].content;
+            deleteNews(index);
+        }
+
+        renderNews();
+    </script>
+</body>
+</html>
