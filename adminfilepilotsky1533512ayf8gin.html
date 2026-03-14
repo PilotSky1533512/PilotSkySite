@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <title>PilotSky 管理者パネル</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        /* 管理画面独自の調整があればここに追記できます */
+    </style>
 </head>
 <body class="dark-mode"> 
     <header>
@@ -34,7 +37,7 @@
 
             <div style="background: #333; padding: 15px; border-radius: 8px; border: 1px solid #ffc107; margin-top: 20px;">
                 <h3 style="color: #ffc107; margin-top: 0;">世界中へ反映（Firebase送信）</h3>
-                <p style="font-size: 0.85em; color: #ccc;">ボタンを押すと、このパソコン以外で見ている人の画面もすべて更新されます。</p>
+                <p style="font-size: 0.85em; color: #ccc;">ボタンを押すと、全員の画面が即座に更新されます。</p>
                 <button onclick="saveToSite()" style="background: #ffc107; color: #000; width: 100%; font-size: 1.1em; font-weight: bold;">
                     保存して世界中に反映
                 </button>
@@ -51,76 +54,51 @@
     </footer>
 
     <script>
-        // あなたのFirebase URL
         const FIREBASE_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
-
-        // お知らせデータの管理用配列
         let newsData = [];
 
-        // 1. Firebaseから現在のデータを取得する
         async function fetchCurrentNews() {
             try {
                 const response = await fetch(FIREBASE_URL);
                 const data = await response.json();
                 if (data) {
-                    // Firebaseが配列ではなくオブジェクトで返す場合があるため変換
                     newsData = Array.isArray(data) ? data : Object.values(data);
                 } else {
-                    // データが空ならデフォルトを入れる
                     newsData = [{ title: "2026/03/14", content: "公式サイトを公開しました！" }];
                 }
                 renderNews();
             } catch (e) {
-                console.error("データの取得に失敗しました", e);
-                document.getElementById('announcement-list').innerHTML = "<p>データの取得に失敗しました。Firebaseのルールを確認してください。</p>";
+                console.error("データ取得失敗", e);
             }
         }
 
-        // 2. 画面のリストを更新する
         function renderNews() {
             const list = document.getElementById('announcement-list');
             const output = document.getElementById('output-code');
             list.innerHTML = '';
             let htmlCode = "<ul>\n";
-
             newsData.forEach((item, index) => {
-                list.innerHTML += `
-                    <div class="announcement-item">
-                        <span><strong>${item.title}</strong>: ${item.content}</span>
-                        <div>
-                            <button onclick="editNews(${index})" style="background:#666; color:white; margin-right:5px;">編集</button>
-                            <button onclick="deleteNews(${index})" style="background:#dc3545; color:white;">削除</button>
-                        </div>
-                    </div>`;
+                list.innerHTML += `<div class="announcement-item"><span><strong>${item.title}</strong>: ${item.content}</span><div><button onclick="editNews(${index})" style="background:#666; color:white; margin-right:5px;">編集</button><button onclick="deleteNews(${index})" style="background:#dc3545; color:white;">削除</button></div></div>`;
                 htmlCode += `  <li><strong>${item.title}</strong> - ${item.content}</li>\n`;
             });
-
             htmlCode += "</ul>";
             output.innerText = htmlCode;
         }
 
-        // 3. 一時リストに追加する
         function addNews() {
             const title = document.getElementById('news-title').value;
             const content = document.getElementById('news-content').value;
-            if(!title || !content) return alert("タイトルと内容を入力してください");
-
+            if(!title || !content) return alert("入力してください");
             newsData.push({ title, content });
             renderNews();
-            
             document.getElementById('news-title').value = '';
             document.getElementById('news-content').value = '';
         }
 
-        // 4. 削除
         function deleteNews(index) {
-            if(confirm("このお知らせを削除しますか？")) {
-                newsData.splice(index, 1);
-                renderNews();
-            }
+            if(confirm("削除しますか？")) { newsData.splice(index, 1); renderNews(); }
         }
 
-        // 5. 編集
         function editNews(index) {
             document.getElementById('news-title').value = newsData[index].title;
             document.getElementById('news-content').value = newsData[index].content;
@@ -128,35 +106,19 @@
             renderNews();
         }
 
-        // 6. ★Firebaseへデータを送信する（世界中に反映）
         async function saveToSite() {
-            // パスワード（必要ならここを好きな文字に変えてください）
             const pass = prompt("管理者パスワードを入力してください");
-            if (pass !== "admin123") { 
-                alert("パスワードが違います");
-                return;
-            }
-
-            if (!confirm("保存した内容を世界中に公開しますか？")) return;
-
+            if (pass !== "admin123") return alert("パスワードが違います");
+            if (!confirm("世界中に公開しますか？")) return;
             try {
-                const response = await fetch(FIREBASE_URL, {
-                    method: 'PUT', // データを上書き
+                await fetch(FIREBASE_URL, {
+                    method: 'PUT',
                     body: JSON.stringify(newsData),
                     headers: { 'Content-Type': 'application/json' }
                 });
-
-                if (response.ok) {
-                    alert("反映完了！他の人の画面でも更新されるようになりました。");
-                } else {
-                    throw new Error();
-                }
-            } catch (e) {
-                alert("送信に失敗しました。\nFirebaseの『ルール』タブで .read と .write が true になっているか確認してください。");
-            }
+                alert("反映完了！");
+            } catch (e) { alert("送信失敗"); }
         }
-
-        // ページ読み込み時に実行
         fetchCurrentNews();
     </script>
 </body>
