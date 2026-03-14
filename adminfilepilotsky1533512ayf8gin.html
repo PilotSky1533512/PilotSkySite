@@ -22,25 +22,26 @@
 
         <section class="admin-box">
             <h2>お知らせ設定</h2>
-            <div id="announcement-list"></div>
+            <div id="announcement-list">
+                <p>データを読み込み中...</p>
+            </div>
             
             <hr style="border: 0; border-top: 1px solid #555; margin: 20px 0;">
             <h3>新しいお知らせを追加 / 編集</h3>
             <input type="text" id="news-title" placeholder="タイトル (例: 2026/03/14)">
             <textarea id="news-content" rows="3" placeholder="内容 (例: 公式サイトを公開しました！)"></textarea>
-            <button onclick="addNews()" style="background: var(--accent-color); color:white; width: 100%; margin-bottom: 10px;">リストに追加 / 更新</button>
+            <button onclick="addNews()" style="background: var(--accent-color); color:white; width: 100%; margin-bottom: 10px;">リストに追加</button>
 
-            <div style="background: #333; padding: 15px; border-radius: 8px; border: 1px solid #ffc107;">
-                <h3 style="color: #ffc107; margin-top: 0;">サイト更新</h3>
-                <p style="font-size: 0.85em;">リストの内容を確定して、実際のサイト（index.html）に反映させます。</p>
-                <button onclick="saveToSite()" style="background: #ffc107; color: #000; width: 100%; font-size: 1.1em;">
-                    保存してサイトに反映
+            <div style="background: #333; padding: 15px; border-radius: 8px; border: 1px solid #ffc107; margin-top: 20px;">
+                <h3 style="color: #ffc107; margin-top: 0;">世界中へ反映（Firebase送信）</h3>
+                <p style="font-size: 0.85em; color: #ccc;">ボタンを押すと、このパソコン以外で見ている人の画面もすべて更新されます。</p>
+                <button onclick="saveToSite()" style="background: #ffc107; color: #000; width: 100%; font-size: 1.1em; font-weight: bold;">
+                    保存して世界中に反映
                 </button>
             </div>
 
             <hr style="border: 0; border-top: 1px solid #555; margin: 20px 0;">
-            <h3>【手動用】HTMLコピーコード</h3>
-            <p>JavaScriptが動かない環境などの場合は、下のコードを手動で index.html に貼り付けてください。</p>
+            <h3>【バックアップ用】HTMLコード</h3>
             <div class="secret-code" id="output-code"></div>
         </section>
     </main>
@@ -50,12 +51,32 @@
     </footer>
 
     <script>
-        // データの初期化（ローカルストレージから読み込み、なければデフォルト）
-        let newsData = JSON.parse(localStorage.getItem('pilotSkyNews')) || [
-            { title: "2026/03/14", content: "PilotSky1533512の公式サイトを公開しました。" }
-        ];
+        // あなたのFirebase URL
+        const FIREBASE_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
 
-        // 画面にリストを表示する関数
+        // お知らせデータの管理用配列
+        let newsData = [];
+
+        // 1. Firebaseから現在のデータを取得する
+        async function fetchCurrentNews() {
+            try {
+                const response = await fetch(FIREBASE_URL);
+                const data = await response.json();
+                if (data) {
+                    // Firebaseが配列ではなくオブジェクトで返す場合があるため変換
+                    newsData = Array.isArray(data) ? data : Object.values(data);
+                } else {
+                    // データが空ならデフォルトを入れる
+                    newsData = [{ title: "2026/03/14", content: "公式サイトを公開しました！" }];
+                }
+                renderNews();
+            } catch (e) {
+                console.error("データの取得に失敗しました", e);
+                document.getElementById('announcement-list').innerHTML = "<p>データの取得に失敗しました。Firebaseのルールを確認してください。</p>";
+            }
+        }
+
+        // 2. 画面のリストを更新する
         function renderNews() {
             const list = document.getElementById('announcement-list');
             const output = document.getElementById('output-code');
@@ -63,7 +84,6 @@
             let htmlCode = "<ul>\n";
 
             newsData.forEach((item, index) => {
-                // 管理画面用の表示
                 list.innerHTML += `
                     <div class="announcement-item">
                         <span><strong>${item.title}</strong>: ${item.content}</span>
@@ -72,8 +92,6 @@
                             <button onclick="deleteNews(${index})" style="background:#dc3545; color:white;">削除</button>
                         </div>
                     </div>`;
-                
-                // コピー用のコード生成
                 htmlCode += `  <li><strong>${item.title}</strong> - ${item.content}</li>\n`;
             });
 
@@ -81,7 +99,7 @@
             output.innerText = htmlCode;
         }
 
-        // リストに新しく追加する関数
+        // 3. 一時リストに追加する
         function addNews() {
             const title = document.getElementById('news-title').value;
             const content = document.getElementById('news-content').value;
@@ -94,7 +112,7 @@
             document.getElementById('news-content').value = '';
         }
 
-        // 削除機能
+        // 4. 削除
         function deleteNews(index) {
             if(confirm("このお知らせを削除しますか？")) {
                 newsData.splice(index, 1);
@@ -102,7 +120,7 @@
             }
         }
 
-        // 編集機能
+        // 5. 編集
         function editNews(index) {
             document.getElementById('news-title').value = newsData[index].title;
             document.getElementById('news-content').value = newsData[index].content;
@@ -110,18 +128,36 @@
             renderNews();
         }
 
-        // ★最重要：ブラウザにデータを保存する関数
-        function saveToSite() {
+        // 6. ★Firebaseへデータを送信する（世界中に反映）
+        async function saveToSite() {
+            // パスワード（必要ならここを好きな文字に変えてください）
+            const pass = prompt("管理者パスワードを入力してください");
+            if (pass !== "admin123") { 
+                alert("パスワードが違います");
+                return;
+            }
+
+            if (!confirm("保存した内容を世界中に公開しますか？")) return;
+
             try {
-                localStorage.setItem('pilotSkyNews', JSON.stringify(newsData));
-                alert("サイトのデータを更新しました！\nindex.htmlを開いて確認してください。");
+                const response = await fetch(FIREBASE_URL, {
+                    method: 'PUT', // データを上書き
+                    body: JSON.stringify(newsData),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    alert("反映完了！他の人の画面でも更新されるようになりました。");
+                } else {
+                    throw new Error();
+                }
             } catch (e) {
-                alert("保存に失敗しました。ブラウザの設定を確認してください。");
+                alert("送信に失敗しました。\nFirebaseの『ルール』タブで .read と .write が true になっているか確認してください。");
             }
         }
 
-        // ページを開いたときに実行
-        renderNews();
+        // ページ読み込み時に実行
+        fetchCurrentNews();
     </script>
 </body>
 </html>
