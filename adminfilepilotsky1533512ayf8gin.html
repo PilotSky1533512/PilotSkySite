@@ -8,7 +8,7 @@
 <body class="dark-mode"> 
     <header>
         <h1>管理者専用パネル</h1>
-        <a href="index.html" style="color: var(--text-color);">サイトへ戻る</a>
+        <a href="index.html" style="color: var(--text-color); text-decoration: none; border: 1px solid #777; padding: 5px 10px; border-radius: 4px;">サイトへ戻る</a>
     </header>
 
     <main>
@@ -24,13 +24,13 @@
             <h2>お知らせ設定</h2>
             <div id="announcement-list"></div>
             
-            <hr>
+            <hr style="border: 0; border-top: 1px solid #555; margin: 20px 0;">
             <h3>新しいお知らせを追加 / 編集</h3>
             <input type="text" id="news-title" placeholder="タイトル">
             <textarea id="news-content" rows="3" placeholder="内容"></textarea>
             <button onclick="addNews()" style="background: var(--accent-color); color:white;">追加 / 更新</button>
 
-            <hr>
+            <hr style="border: 0; border-top: 1px solid #555; margin: 20px 0;">
             <h3>【重要】サイトへの反映方法</h3>
             <p>編集が終わったら下のコードをコピーして、index.html のお知らせ部分に貼り付けてください。</p>
             <div class="secret-code" id="output-code"></div>
@@ -57,7 +57,7 @@
                     <div class="announcement-item">
                         <span><strong>${item.title}</strong>: ${item.content}</span>
                         <div>
-                            <button onclick="editNews(${index})" style="background:#666; color:white;">編集</button>
+                            <button onclick="editNews(${index})" style="background:#666; color:white; margin-right:5px;">編集</button>
                             <button onclick="deleteNews(${index})" style="background:#dc3545; color:white;">削除</button>
                         </div>
                     </div>`;
@@ -72,7 +72,7 @@
         function addNews() {
             const title = document.getElementById('news-title').value;
             const content = document.getElementById('news-content').value;
-            if(!title || !content) return alert("入力してください");
+            if(!title || !content) return alert("タイトルと内容を入力してください");
 
             newsData.push({ title, content });
             renderNews();
@@ -82,14 +82,17 @@
         }
 
         function deleteNews(index) {
-            newsData.splice(index, 1);
-            renderNews();
+            if(confirm("削除してもよろしいですか？")) {
+                newsData.splice(index, 1);
+                renderNews();
+            }
         }
 
         function editNews(index) {
             document.getElementById('news-title').value = newsData[index].title;
             document.getElementById('news-content').value = newsData[index].content;
-            deleteNews(index);
+            newsData.splice(index, 1);
+            renderNews();
         }
 
         renderNews();
