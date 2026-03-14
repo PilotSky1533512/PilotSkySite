@@ -106,3 +106,28 @@ function showUpdateModal() {
 
 // 忘れずに起動
 watchServerUpdate();
+
+// script.js の監視部分をこれに差し替え
+const VERSION_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/version.json";
+let currentVersion = null;
+
+async function watchSiteUpdate() {
+    setInterval(async () => {
+        try {
+            const res = await fetch(VERSION_URL);
+            const serverVersion = await res.json();
+
+            if (currentVersion === null) {
+                currentVersion = serverVersion;
+                return;
+            }
+
+            // サーバーのバージョン番号が変わったら、コードが更新されたとみなす
+            if (currentVersion !== serverVersion) {
+                showUpdateModal(); // 「再読み込み」ボタンを出す
+                currentVersion = serverVersion;
+            }
+        } catch (e) { }
+    }, 5000);
+}
+watchSiteUpdate();
