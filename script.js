@@ -97,7 +97,7 @@ function showUpdateModal() {
     modal.innerHTML = `
         <div class="update-content">
             <h2>📢 サーバーデータ更新</h2>
-            <p>お知らせが更新されました。<br>最新の状態を表示するために再読み込みしてください。</p>
+            <p>サーバーデータが更新されました。<br>最新の状態を表示するために再読み込みしてください。</p>
             <button onclick="location.reload()">再読み込み</button>
         </div>
     `;
