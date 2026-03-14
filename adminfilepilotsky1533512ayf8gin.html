@@ -6,7 +6,27 @@
     <link rel="icon" href="piroaddon.png" type="image/png">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 管理画面独自の調整があればここに追記できます */
+        /* 直接ここにもボタンのスタイルを書いて確実に表示させます */
+        .top-btn {
+            position: fixed !important;
+            right: 20px !important;
+            bottom: 20px !important;
+            width: 60px;
+            height: 60px;
+            z-index: 9999;
+            background-color: var(--accent-color);
+            padding: 0;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            transition: transform 0.3s;
+        }
+        .top-btn:hover { transform: scale(1.1); }
+        .top-btn img { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
 <body class="dark-mode"> 
@@ -53,14 +73,19 @@
     <footer>
         <p>©2026 PilotSkyTEAM</p>
     </footer>
-    
-    <button id="top-button" class="top-btn">
+
+    <button id="top-button" class="top-btn" onclick="scrollToTop()">
         <img src="TopBotton.png" alt="Top">
     </button>
 
     <script>
         const FIREBASE_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
         let newsData = [];
+
+        // ページの一番上へ戻る機能
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
 
         async function fetchCurrentNews() {
             try {
