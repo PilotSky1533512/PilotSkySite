@@ -4,6 +4,8 @@
     --accent-color: #007bff;
     --section-bg: #f9f9f9;
     --header-bg: #eeeeee;
+    --input-bg: #ffffff;
+    --input-border: #ccc;
 }
 
 body.dark-mode {
@@ -12,6 +14,8 @@ body.dark-mode {
     --accent-color: #3793ff;
     --section-bg: #1e1e1e;
     --header-bg: #2d2d2d;
+    --input-bg: #2d2d2d;
+    --input-border: #444;
 }
 
 body {
@@ -19,7 +23,7 @@ body {
     color: var(--text-color);
     font-family: sans-serif;
     margin: 0;
-    transition: 0.3s;
+    transition: background-color 0.3s, color 0.3s;
 }
 
 header {
@@ -55,32 +59,48 @@ button {
 .dl-btn { background: #28a745; color: white; }
 .submit-btn { background: var(--accent-color); color: white; width: 100%; margin-top: 10px; }
 
-input, textarea {
+/* 入力エリアの色の不整合を修正 */
+input[type="text"], 
+input[type="email"], 
+textarea {
     width: 100%;
     padding: 8px;
     margin-bottom: 10px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--input-border);
     border-radius: 4px;
-    background: var(--bg-color);
+    background: var(--input-bg);
     color: var(--text-color);
     box-sizing: border-box;
 }
 
-footer { text-align: center; padding: 30px; }
-
-.modal {
-    display: none;
-    position: fixed;
-    z-index: 100;
-    left: 0; top: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6);
+/* チェックボックスのズレ修正 */
+.checkbox-group {
+    display: flex;
+    gap: 15px;
+    margin-top: 5px;
 }
 
-.modal-content {
-    background: var(--section-bg);
-    margin: 15% auto;
-    padding: 20px;
-    width: 280px;
-    border-radius: 8px;
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+footer {
     text-align: center;
+    padding: 30px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.7;
 }
+
+/* 管理画面用追加スタイル */
+.admin-box { border: 2px solid var(--accent-color); padding: 20px; margin-bottom: 20px; border-radius: 10px; }
+.announcement-item { background: var(--header-bg); color: var(--text-color); padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
+.secret-code { background: #000; color: #0f0; padding: 15px; overflow-x: auto; font-family: monospace; border-radius: 4px; margin-top: 10px; }
