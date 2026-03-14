@@ -48,53 +48,61 @@ if (topButton) {
     };
 }
 
-// --- リアルタイム更新監視機能 ---
-// Firebaseのデータ(news.json)を監視
+// --- リアルタイム更新監視機能 (修正版) ---
 const FIREBASE_NEWS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
 
-// ページを読み込んだ時の最初のデータの状態を保存
-let lastKnownData = null;
+let currentDataHash = null;
 
 async function watchServerUpdate() {
-    // 5秒ごとにサーバーに「更新された？」と聞きに行く
+    // 起動時に現在のデータを取得して「今の状態」を覚えさせる
+    try {
+        const firstRes = await fetch(FIREBASE_NEWS_URL);
+        const firstData = await firstRes.json();
+        currentDataHash = JSON.stringify(firstData);
+    } catch (e) {
+        console.error("初期取得エラー", e);
+    }
+
+    // 3秒ごとにチェック（テストのため少し早めます）
     setInterval(async () => {
         try {
             const response = await fetch(FIREBASE_NEWS_URL);
-            const data = await response.json();
-            const dataString = JSON.stringify(data);
+            const newData = await response.json();
+            const newDataString = JSON.stringify(newData);
 
-            if (lastKnownData === null) {
-                lastKnownData = dataString;
+            // currentDataHashがまだ空なら覚えさせる
+            if (!currentDataHash) {
+                currentDataHash = newDataString;
                 return;
             }
 
-            // もしサーバーのデータが、今持っているデータと変わっていたら
-            if (lastKnownData !== dataString) {
+            // 【重要】保存されているデータと、今取得したデータが違ったら通知
+            if (currentDataHash !== newDataString) {
+                console.log("データ更新を検知しました！");
                 showUpdateModal();
-                lastKnownData = dataString; // 何度も出ないように更新
+                // 連続で出ないように、現在の状態を最新に更新する
+                currentDataHash = newDataString;
             }
         } catch (e) {
-            console.error("更新チェックエラー", e);
+            console.log("監視中...");
         }
-    }, 5000); // 5秒間隔（短すぎると負荷がかかるので5秒がおすすめ）
+    }, 3000); 
 }
 
-// 画面中央に通知を出す
 function showUpdateModal() {
-    // すでに通知が出ていたら作らない
     if (document.getElementById('update-modal')) return;
 
     const modal = document.createElement('div');
     modal.id = 'update-modal';
     modal.innerHTML = `
         <div class="update-content">
-            <h2>📢 お知らせが更新されました</h2>
-            <p>サーバーのデータが更新されました。最新の情報を読みこんでください。</p>
+            <h2>📢 サーバーデータ更新</h2>
+            <p>お知らせが更新されました。<br>最新の状態を表示するために再読み込みしてください。</p>
             <button onclick="location.reload()">再読み込み</button>
         </div>
     `;
     document.body.appendChild(modal);
 }
 
-// 起動
+// 忘れずに起動
 watchServerUpdate();
