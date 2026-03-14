@@ -148,3 +148,30 @@ footer {
     border-radius: 4px; 
     margin-top: 10px; 
 }
+
+/* --- トップへ戻るボタンのスタイル --- */
+.top-btn {
+    position: fixed;     /* 画面に対して固定 */
+    right: 20px;         /* 右から20px */
+    bottom: 20px;        /* 下から20px */
+    width: 60px;         /* 画像のサイズに合わせて調整 */
+    height: 60px;
+    z-index: 1001;       /* ヘッダー(1000)より上に表示 */
+    background: none;    /* 背景を消す（画像のみにする場合） */
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.3s, opacity 0.3s;
+    opacity: 0.8;
+}
+
+.top-btn:hover {
+    transform: translateY(-5px); /* ホバー時に少し浮く */
+    opacity: 1;
+}
+
+.top-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
