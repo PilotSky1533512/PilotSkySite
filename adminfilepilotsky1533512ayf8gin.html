@@ -153,3 +153,17 @@
     </script>
 </body>
 </html>
+
+// 管理者パネルのscript内に追加
+async function updateSiteVersion() {
+    const newVersion = Date.now(); // 現在時刻をバージョン番号にする
+    const VERSION_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/version.json";
+    
+    if(!confirm("サイト全体のアップデートを全員に通知しますか？")) return;
+
+    await fetch(VERSION_URL, {
+        method: 'PUT',
+        body: JSON.stringify(newVersion)
+    });
+    alert("アップデート通知を送信しました！");
+}
