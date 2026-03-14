@@ -26,13 +26,21 @@
             
             <hr style="border: 0; border-top: 1px solid #555; margin: 20px 0;">
             <h3>新しいお知らせを追加 / 編集</h3>
-            <input type="text" id="news-title" placeholder="タイトル">
-            <textarea id="news-content" rows="3" placeholder="内容"></textarea>
-            <button onclick="addNews()" style="background: var(--accent-color); color:white;">追加 / 更新</button>
+            <input type="text" id="news-title" placeholder="タイトル (例: 2026/03/14)">
+            <textarea id="news-content" rows="3" placeholder="内容 (例: 公式サイトを公開しました！)"></textarea>
+            <button onclick="addNews()" style="background: var(--accent-color); color:white; width: 100%; margin-bottom: 10px;">リストに追加 / 更新</button>
+
+            <div style="background: #333; padding: 15px; border-radius: 8px; border: 1px solid #ffc107;">
+                <h3 style="color: #ffc107; margin-top: 0;">サイト更新</h3>
+                <p style="font-size: 0.85em;">リストの内容を確定して、実際のサイト（index.html）に反映させます。</p>
+                <button onclick="saveToSite()" style="background: #ffc107; color: #000; width: 100%; font-size: 1.1em;">
+                    保存してサイトに反映
+                </button>
+            </div>
 
             <hr style="border: 0; border-top: 1px solid #555; margin: 20px 0;">
-            <h3>【重要】サイトへの反映方法</h3>
-            <p>編集が終わったら下のコードをコピーして、index.html のお知らせ部分に貼り付けてください。</p>
+            <h3>【手動用】HTMLコピーコード</h3>
+            <p>JavaScriptが動かない環境などの場合は、下のコードを手動で index.html に貼り付けてください。</p>
             <div class="secret-code" id="output-code"></div>
         </section>
     </main>
@@ -42,10 +50,12 @@
     </footer>
 
     <script>
-        let newsData = [
-            { title: "サイト公開", content: "PilotSky1533512の公式サイトを公開しました。" }
+        // データの初期化（ローカルストレージから読み込み、なければデフォルト）
+        let newsData = JSON.parse(localStorage.getItem('pilotSkyNews')) || [
+            { title: "2026/03/14", content: "PilotSky1533512の公式サイトを公開しました。" }
         ];
 
+        // 画面にリストを表示する関数
         function renderNews() {
             const list = document.getElementById('announcement-list');
             const output = document.getElementById('output-code');
@@ -53,6 +63,7 @@
             let htmlCode = "<ul>\n";
 
             newsData.forEach((item, index) => {
+                // 管理画面用の表示
                 list.innerHTML += `
                     <div class="announcement-item">
                         <span><strong>${item.title}</strong>: ${item.content}</span>
@@ -62,6 +73,7 @@
                         </div>
                     </div>`;
                 
+                // コピー用のコード生成
                 htmlCode += `  <li><strong>${item.title}</strong> - ${item.content}</li>\n`;
             });
 
@@ -69,6 +81,7 @@
             output.innerText = htmlCode;
         }
 
+        // リストに新しく追加する関数
         function addNews() {
             const title = document.getElementById('news-title').value;
             const content = document.getElementById('news-content').value;
@@ -81,13 +94,15 @@
             document.getElementById('news-content').value = '';
         }
 
+        // 削除機能
         function deleteNews(index) {
-            if(confirm("削除してもよろしいですか？")) {
+            if(confirm("このお知らせを削除しますか？")) {
                 newsData.splice(index, 1);
                 renderNews();
             }
         }
 
+        // 編集機能
         function editNews(index) {
             document.getElementById('news-title').value = newsData[index].title;
             document.getElementById('news-content').value = newsData[index].content;
@@ -95,6 +110,17 @@
             renderNews();
         }
 
+        // ★最重要：ブラウザにデータを保存する関数
+        function saveToSite() {
+            try {
+                localStorage.setItem('pilotSkyNews', JSON.stringify(newsData));
+                alert("サイトのデータを更新しました！\nindex.htmlを開いて確認してください。");
+            } catch (e) {
+                alert("保存に失敗しました。ブラウザの設定を確認してください。");
+            }
+        }
+
+        // ページを開いたときに実行
         renderNews();
     </script>
 </body>
