@@ -149,29 +149,35 @@ footer {
     margin-top: 10px; 
 }
 
-/* --- トップへ戻るボタンのスタイル --- */
+/* --- トップへ戻るボタンのスタイル (強化版) --- */
 .top-btn {
-    position: fixed;     /* 画面に対して固定 */
-    right: 20px;         /* 右から20px */
-    bottom: 20px;        /* 下から20px */
-    width: 60px;         /* 画像のサイズに合わせて調整 */
+    position: fixed !important; /* 絶対に固定 */
+    right: 20px;
+    bottom: 20px;
+    width: 60px;
     height: 60px;
-    z-index: 1001;       /* ヘッダー(1000)より上に表示 */
-    background: none;    /* 背景を消す（画像のみにする場合） */
+    z-index: 9999;       /* どの要素よりも一番上に表示 */
+    background-color: var(--accent-color); /* 画像が出ない時のための背景色 */
     padding: 0;
     border: none;
+    border-radius: 50%;  /* 丸くする */
     cursor: pointer;
     transition: transform 0.3s, opacity 0.3s;
     opacity: 0.8;
+    display: flex;       /* 中央配置用 */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;    /* 画像がはみ出さないように */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 影をつけて浮かす */
 }
 
 .top-btn:hover {
-    transform: translateY(-5px); /* ホバー時に少し浮く */
+    transform: translateY(-5px) scale(1.1);
     opacity: 1;
 }
 
 .top-btn img {
     width: 100%;
     height: 100%;
-    object-fit: contain;
+    object-fit: cover;   /* 画像を枠いっぱいに表示 */
 }
