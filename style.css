@@ -64,7 +64,7 @@ input[type="text"],
 input[type="email"], 
 textarea {
     width: 100%;
-    padding: 8px;
+    padding: 10px;
     margin-bottom: 10px;
     border: 1px solid var(--input-border);
     border-radius: 4px;
@@ -73,34 +73,39 @@ textarea {
     box-sizing: border-box;
 }
 
-/* チェックボックスのズレ修正 */
+/* --- チェックボックスのズレを徹底修正 --- */
 .checkbox-group {
     display: flex;
-    gap: 15px;
-    margin-top: 5px;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 10px 0;
 }
 
-.checkbox-group label {
+.checkbox-item {
     display: flex;
-    align-items: center;
-    gap: 5px;
+    align-items: center; /* 縦方向の中央揃え */
     cursor: pointer;
+    color: var(--text-color);
 }
 
-.checkbox-group input[type="checkbox"] {
-    width: auto;
-    margin: 0;
+/* input全体のwidth:100%設定を無効化 */
+.checkbox-item input[type="checkbox"] {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 8px 0 0 !important;
+    cursor: pointer;
+    transform: scale(1.2);
 }
 
 footer {
     text-align: center;
-    padding: 30px;
+    padding: 40px 20px;
     font-size: 0.9em;
     color: var(--text-color);
-    opacity: 0.7;
+    opacity: 0.8;
 }
 
-/* 管理画面用追加スタイル */
+/* 管理画面用スタイル */
 .admin-box { border: 2px solid var(--accent-color); padding: 20px; margin-bottom: 20px; border-radius: 10px; }
 .announcement-item { background: var(--header-bg); color: var(--text-color); padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
 .secret-code { background: #000; color: #0f0; padding: 15px; overflow-x: auto; font-family: monospace; border-radius: 4px; margin-top: 10px; }
