@@ -35,3 +35,15 @@ async function loadNews() {
 
 // ページ読み込み時に実行
 document.addEventListener('DOMContentLoaded', loadNews);
+
+// トップへ戻るボタンの処理
+const topButton = document.getElementById('top-button');
+
+if (topButton) {
+    topButton.onclick = () => {
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth' // スルスルと動くアニメーション
+        });
+    };
+}
