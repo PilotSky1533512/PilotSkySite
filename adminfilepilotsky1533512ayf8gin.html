@@ -138,7 +138,7 @@
 
         async function saveToSite() {
             const pass = prompt("管理者パスワードを入力してください");
-            if (pass !== "admin123") return alert("パスワードが違います");
+            if (pass !== "AdminPassPilotSky") return alert("パスワードが違います");
             if (!confirm("世界中に公開しますか？")) return;
             try {
                 await fetch(FIREBASE_URL, {
