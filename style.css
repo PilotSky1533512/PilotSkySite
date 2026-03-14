@@ -109,3 +109,25 @@ footer {
 .admin-box { border: 2px solid var(--accent-color); padding: 20px; margin-bottom: 20px; border-radius: 10px; }
 .announcement-item { background: var(--header-bg); color: var(--text-color); padding: 10px; margin-bottom: 5px; display: flex; justify-content: space-between; align-items: center; border-radius: 4px; }
 .secret-code { background: #000; color: #0f0; padding: 15px; overflow-x: auto; font-family: monospace; border-radius: 4px; margin-top: 10px; }
+
+header {
+    background: var(--header-bg);
+    padding: 15px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--accent-color);
+    
+    /* --- 固定のための追加設定 --- */
+    position: sticky;
+    top: 0;
+    z-index: 1000; /* 他の要素より上に表示 */
+}
+
+/* ヘッダーが固定されて浮くので、
+   すぐ下のmainに少し余白を持たせると綺麗に見えます */
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+}
