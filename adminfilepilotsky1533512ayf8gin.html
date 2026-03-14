@@ -6,7 +6,6 @@
     <link rel="icon" href="piroaddon.png" type="image/png">
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 直接ここにもボタンのスタイルを書いて確実に表示させます */
         .top-btn {
             position: fixed !important;
             right: 20px !important;
@@ -27,6 +26,15 @@
         }
         .top-btn:hover { transform: scale(1.1); }
         .top-btn img { width: 100%; height: 100%; object-fit: contain; }
+
+        /* アップデートボタン用の追加スタイル */
+        .update-box {
+            background: #1a1a1a;
+            border: 2px solid #00ffcc;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body class="dark-mode"> 
@@ -58,9 +66,17 @@
 
             <div style="background: #333; padding: 15px; border-radius: 8px; border: 1px solid #ffc107; margin-top: 20px;">
                 <h3 style="color: #ffc107; margin-top: 0;">世界中へ反映（Firebase送信）</h3>
-                <p style="font-size: 0.85em; color: #ccc;">ボタンを押すと、全員の画面が即座に更新されます。</p>
+                <p style="font-size: 0.85em; color: #ccc;">お知らせを保存すると、全ユーザーに「再読み込み通知」が飛びます。</p>
                 <button onclick="saveToSite()" style="background: #ffc107; color: #000; width: 100%; font-size: 1.1em; font-weight: bold;">
                     保存して世界中に反映
+                </button>
+            </div>
+
+            <div class="update-box">
+                <h3 style="color: #00ffcc; margin-top: 0;">システムアップデート通知</h3>
+                <p style="font-size: 0.85em;">HTMLやCSSを直接書き換えてアップロードした後は、下のボタンを押して全員に通知してください。</p>
+                <button onclick="updateSiteVersion()" style="background: #00ffcc; color: #000; width: 100%; font-weight: bold;">
+                    コード変更を全員に通知する
                 </button>
             </div>
 
@@ -80,9 +96,9 @@
 
     <script>
         const FIREBASE_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
+        const VERSION_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/version.json";
         let newsData = [];
 
-        // ページの一番上へ戻る機能
         function scrollToTop() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -136,34 +152,40 @@
             renderNews();
         }
 
+        // サイトバージョンを更新する関数
+        async function updateSiteVersion(silent = false) {
+            const newVersion = Date.now();
+            try {
+                await fetch(VERSION_URL, {
+                    method: 'PUT',
+                    body: JSON.stringify(newVersion)
+                });
+                if(!silent) alert("アップデート通知を送信しました！");
+            } catch (e) {
+                if(!silent) alert("バージョン更新に失敗しました");
+            }
+        }
+
         async function saveToSite() {
             const pass = prompt("管理者パスワードを入力してください");
             if (pass !== "AdminPassPilotSky") return alert("パスワードが違います");
             if (!confirm("世界中に公開しますか？")) return;
             try {
+                // お知らデータの保存
                 await fetch(FIREBASE_URL, {
                     method: 'PUT',
                     body: JSON.stringify(newsData),
                     headers: { 'Content-Type': 'application/json' }
                 });
-                alert("反映完了！");
+                
+                // 同時にお知らせ更新を通知するためにバージョンも更新
+                await updateSiteVersion(true);
+
+                alert("反映完了！全ユーザーに通知を送りました。");
             } catch (e) { alert("送信失敗"); }
         }
+        
         fetchCurrentNews();
     </script>
 </body>
 </html>
-
-// 管理者パネルのscript内に追加
-async function updateSiteVersion() {
-    const newVersion = Date.now(); // 現在時刻をバージョン番号にする
-    const VERSION_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/version.json";
-    
-    if(!confirm("サイト全体のアップデートを全員に通知しますか？")) return;
-
-    await fetch(VERSION_URL, {
-        method: 'PUT',
-        body: JSON.stringify(newVersion)
-    });
-    alert("アップデート通知を送信しました！");
-}
