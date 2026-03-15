@@ -131,3 +131,54 @@ async function watchSiteUpdate() {
     }, 5000);
 }
 watchSiteUpdate();
+
+const STATS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/visitors.json";
+
+async function updateVisitorStats() {
+    try {
+        // 1. 現在の統計データを取得
+        const response = await fetch(STATS_URL);
+        let stats = await response.json();
+
+        // データが空（初回）の場合の初期値
+        if (!stats) {
+            stats = {
+                total: 0,
+                today: 0,
+                yesterday: 0,
+                lastUpdate: new Date().toLocaleDateString()
+            };
+        }
+
+        const todayStr = new Date().toLocaleDateString();
+
+        // 2. 日付が変わっているかチェック
+        if (stats.lastUpdate !== todayStr) {
+            // 日付が変わっていたら、今日の分を昨日にスライド
+            stats.yesterday = stats.today;
+            stats.today = 0;
+            stats.lastUpdate = todayStr;
+        }
+
+        // 3. カウントアップ（今のユーザー分）
+        stats.today += 1;
+        stats.total += 1;
+
+        // 4. Firebaseに保存（PUTで上書き）
+        await fetch(STATS_URL, {
+            method: 'PUT',
+            body: JSON.stringify(stats)
+        });
+
+        // 5. 画面に表示
+        document.getElementById('today-visitors').innerText = stats.today;
+        document.getElementById('yesterday-visitors').innerText = stats.yesterday;
+        document.getElementById('total-visitors').innerText = stats.total;
+
+    } catch (e) {
+        console.error("訪問者数更新エラー", e);
+    }
+}
+
+// ページ読み込み時に実行
+updateVisitorStats();
