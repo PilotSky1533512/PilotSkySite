@@ -136,49 +136,59 @@ const STATS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.c
 
 async function updateVisitorStats() {
     try {
-        // 1. 現在の統計データを取得
+        const todayStr = new Date().toLocaleDateString();
+        // ローカルストレージから「最後に訪問した日」を取得
+        const lastVisit = localStorage.getItem('lastVisitDate');
+
+        // もし今日すでに訪問済みなら、サーバーのデータ取得だけして終了
+        if (lastVisit === todayStr) {
+            const response = await fetch(STATS_URL);
+            const stats = await response.json();
+            if (stats) {
+                document.getElementById('today-visitors').innerText = stats.today;
+                document.getElementById('yesterday-visitors').innerText = stats.yesterday;
+                document.getElementById('total-visitors').innerText = stats.total;
+            }
+            return; // ここで処理を終えるので、カウントは増えない
+        }
+
+        // --- 初めての訪問、または日付が変わった後の訪問の場合のみ以下を実行 ---
+
         const response = await fetch(STATS_URL);
         let stats = await response.json();
 
-        // データが空（初回）の場合の初期値
         if (!stats) {
-            stats = {
-                total: 0,
-                today: 0,
-                yesterday: 0,
-                lastUpdate: new Date().toLocaleDateString()
-            };
+            stats = { total: 0, today: 0, yesterday: 0, lastUpdate: todayStr };
         }
 
-        const todayStr = new Date().toLocaleDateString();
-
-        // 2. 日付が変わっているかチェック
+        // サーバー側の日付チェック
         if (stats.lastUpdate !== todayStr) {
-            // 日付が変わっていたら、今日の分を昨日にスライド
             stats.yesterday = stats.today;
             stats.today = 0;
             stats.lastUpdate = todayStr;
         }
 
-        // 3. カウントアップ（今のユーザー分）
+        // カウントアップ
         stats.today += 1;
         stats.total += 1;
 
-        // 4. Firebaseに保存（PUTで上書き）
+        // Firebaseに保存
         await fetch(STATS_URL, {
             method: 'PUT',
             body: JSON.stringify(stats)
         });
 
-        // 5. 画面に表示
+        // 画面表示
         document.getElementById('today-visitors').innerText = stats.today;
         document.getElementById('yesterday-visitors').innerText = stats.yesterday;
         document.getElementById('total-visitors').innerText = stats.total;
+
+        // 「今日はカウントしたよ」という印をパソコンに保存
+        localStorage.setItem('lastVisitDate', todayStr);
 
     } catch (e) {
         console.error("訪問者数更新エラー", e);
     }
 }
 
-// ページ読み込み時に実行
 updateVisitorStats();
