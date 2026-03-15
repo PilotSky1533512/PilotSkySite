@@ -226,3 +226,20 @@ footer {
 .update-content button:hover {
     transform: scale(1.05);
 }
+
+.visitor-stats {
+    background: var(--section-bg);
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    text-align: center;
+    border: 1px solid #444;
+}
+.visitor-stats p {
+    margin: 5px 0;
+    font-size: 0.9rem;
+}
+.visitor-stats span {
+    font-weight: bold;
+    color: var(--accent-color);
+}
