@@ -1,133 +1,228 @@
 :root {
-    --bg-color: #05070a;
-    --section-bg: #10141b;
-    --accent-color: #58a6ff;
-    --accent-glow: rgba(88, 166, 255, 0.3);
-    --text-color: #e6edf3;
-    --text-muted: #8b949e;
-    --border-color: #30363d;
+    --bg-color: #ffffff;
+    --text-color: #222222;
+    --accent-color: #007bff;
+    --section-bg: #f9f9f9;
+    --header-bg: #eeeeee;
+    --input-bg: #ffffff;
+    --input-border: #ccc;
+}
+
+body.dark-mode {
+    --bg-color: #121212;
+    --text-color: #e0e0e0;
+    --accent-color: #3793ff;
+    --section-bg: #1e1e1e;
+    --header-bg: #2d2d2d;
+    --input-bg: #2d2d2d;
+    --input-border: #444;
 }
 
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    font-family: sans-serif;
     margin: 0;
-    line-height: 1.6;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-/* ナビゲーション */
-.main-nav {
-    background: rgba(13, 17, 23, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 15px 0;
+/* --- ヘッダーの固定設定 --- */
+header {
+    background: var(--header-bg);
+    padding: 15px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--accent-color);
+    
+    /* スクロールしても上に残る設定 */
     position: sticky;
     top: 0;
-    z-index: 10000;
-    border-bottom: 1px solid var(--border-color);
+    z-index: 1000;
 }
 
-.main-nav ul {
-    display: flex;
-    justify-content: center;
-    list-style: none;
+header h1 {
     margin: 0;
-    padding: 0;
-    gap: 30px;
+    font-size: 1.5rem;
 }
 
-.main-nav a {
-    text-decoration: none;
-    color: var(--text-muted);
-    font-weight: 600;
-    transition: 0.3s;
+main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
 }
 
-.main-nav a:hover, .main-nav a.active {
-    color: var(--accent-color);
-    text-shadow: 0 0 10px var(--accent-glow);
-}
-
-/* コンテナ */
-.container {
-    max-width: 900px;
-    margin: 40px auto;
-    padding: 0 20px;
-}
-
-/* コンテンツボックス */
-.content-box {
+section {
     background: var(--section-bg);
-    padding: 30px;
-    border-radius: 16px;
-    border: 1px solid var(--border-color);
-    margin-bottom: 30px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    margin-bottom: 25px;
+    padding: 20px;
+    border-radius: 8px;
 }
 
-/* 訪問者数表示 */
-.visitor-stats {
-    text-align: center;
-    background: #000;
-    padding: 15px;
-    border-radius: 12px;
-    border: 1px solid var(--accent-color);
-    box-shadow: inset 0 0 10px var(--accent-glow);
-    display: flex;
-    justify-content: space-around;
-    margin: 20px 0;
-}
-
-.visitor-stats div { flex: 1; }
-.visitor-stats span {
-    display: block;
-    font-size: 1.4rem;
-    color: var(--accent-color);
-    font-weight: bold;
-}
-
-/* カードグリッド */
-.grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-}
-
-.card {
-    background: var(--section-bg);
-    padding: 30px;
-    border-radius: 16px;
-    border: 1px solid var(--border-color);
-    transition: 0.3s;
+button {
+    padding: 10px 15px;
     cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+button:hover {
+    opacity: 0.8;
+}
+
+.dl-btn { background: #28a745; color: white; }
+.submit-btn { background: var(--accent-color); color: white; width: 100%; margin-top: 10px; }
+
+/* 入力エリアの色の不整合を修正 */
+input[type="text"], 
+input[type="email"], 
+textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid var(--input-border);
+    border-radius: 4px;
+    background: var(--input-bg);
+    color: var(--text-color);
+    box-sizing: border-box;
+}
+
+/* --- チェックボックスのズレ修正 --- */
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 10px 0;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.checkbox-item input[type="checkbox"] {
+    width: auto !important;
+    height: auto !important;
+    margin: 0 8px 0 0 !important;
+    cursor: pointer;
+    transform: scale(1.2);
+}
+
+footer {
     text-align: center;
+    padding: 40px 20px;
+    font-size: 0.9em;
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
-.card:hover {
-    transform: translateY(-5px);
-    border-color: var(--accent-color);
-    box-shadow: 0 0 20px var(--accent-glow);
+/* --- 管理画面用スタイル --- */
+.admin-box { 
+    border: 2px solid var(--accent-color); 
+    padding: 20px; 
+    margin-bottom: 20px; 
+    border-radius: 10px; 
 }
 
-/* サーバー更新モーダル */
+.announcement-item { 
+    background: var(--header-bg); 
+    color: var(--text-color); 
+    padding: 10px; 
+    margin-bottom: 5px; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    border-radius: 4px; 
+}
+
+.secret-code { 
+    background: #000; 
+    color: #0f0; 
+    padding: 15px; 
+    overflow-x: auto; 
+    font-family: monospace; 
+    border-radius: 4px; 
+    margin-top: 10px; 
+}
+
+/* --- トップへ戻るボタンのスタイル (強化版) --- */
+.top-btn {
+    position: fixed !important; /* 絶対に固定 */
+    right: 20px;
+    bottom: 20px;
+    width: 60px;
+    height: 60px;
+    z-index: 9999;       /* どの要素よりも一番上に表示 */
+    background-color: var(--accent-color); /* 画像が出ない時のための背景色 */
+    padding: 0;
+    border: none;
+    border-radius: 50%;  /* 丸くする */
+    cursor: pointer;
+    transition: transform 0.3s, opacity 0.3s;
+    opacity: 0.8;
+    display: flex;       /* 中央配置用 */
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;    /* 画像がはみ出さないように */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3); /* 影をつけて浮かす */
+}
+
+.top-btn:hover {
+    transform: translateY(-5px) scale(1.1);
+    opacity: 1;
+}
+
+.top-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;   /* 画像を枠いっぱいに表示 */
+}
+
+/* --- 更新通知モーダルのデザイン --- */
 #update-modal {
     position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.85);
-    display: flex; align-items: center; justify-content: center;
-    z-index: 20000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8); /* 背景を暗くする */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000; /* 一番手前に出す */
 }
 
 .update-content {
     background: var(--section-bg);
     padding: 40px;
-    border-radius: 20px;
+    border-radius: 15px;
     text-align: center;
-    border: 2px solid var(--accent-color);
+    border: 3px solid var(--accent-color);
+    box-shadow: 0 0 20px var(--accent-color);
+    max-width: 90%;
+}
+
+.update-content h2 {
+    margin-top: 0;
+    color: var(--accent-color);
 }
 
 .update-content button {
     background: var(--accent-color);
-    color: white; border: none; padding: 10px 25px;
-    border-radius: 5px; cursor: pointer; font-weight: bold;
+    color: white;
+    font-size: 1.2rem;
+    padding: 15px 30px;
+    margin-top: 20px;
+    border-radius: 50px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.update-content button:hover {
+    transform: scale(1.05);
 }
