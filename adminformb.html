@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PilotSky | 運営メンバー応募</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* フォーム専用の追加スタイル */
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background: #000;
+            color: white;
+            box-sizing: border-box;
+        }
+        textarea {
+            height: 150px;
+            resize: vertical;
+        }
+        .submit-btn {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: 0.3s;
+        }
+        .submit-btn:hover {
+            box-shadow: 0 0 20px var(--accent-glow);
+            transform: scale(1.02);
+        }
+        .form-note {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="main-nav">
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="minecraft.html">Minecraft</a></li>
+            <li><a href="media.html">Media</a></li>
+            <li><a href="other.html">Other</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="content-box" style="text-align:center;">
+            <h1>Staff Recruitment</h1>
+            <p>PiloServerの運営メンバーとして、一緒にコミュニティを盛り上げませんか？</p>
+        </div>
+
+        <div class="content-box">
+            <form action="https://formspree.io/f/your-id" method="POST">
+                
+                <div class="form-group">
+                    <label>XboxID</label>
+                    <input type="text" name="mcid" placeholder="例: Minecraft1234" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Discord ユーザー名</label>
+                    <input type="text" name="discord_tag" placeholder="例: user_name#0000" required>
+                </div>
+
+                <div class="form-group">
+                    <label>希望する役職</label>
+                    <select name="role" required>
+                        <option value="">選択してください</option>
+                        <option value="discord">Discord</option>
+                        <option value="minecraft">Minecraft</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>希望理由</label>
+                    <textarea name="message" placeholder="希望理由や、過去の経験などを自由に入力してください。" required></textarea>
+                </div>
+
+                <button type="submit" class="submit-btn">応募を送信する</button>
+                
+                <p class="form-note">※ 送信後、運営チームで審査を行い、通過した方にのみDiscordでご連絡いたします。担当者:PilotSky1533512</p>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2026 PilotSky Team</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
