@@ -2,8 +2,18 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PilotSky | 掲示板</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .bbs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
+        .search-bar { flex: 1; min-width: 250px; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: white; }
+        .create-btn { background: var(--accent-color); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .create-btn:disabled { background: #333; cursor: not-allowed; opacity: 0.5; }
+        .bbs-item { background: var(--section-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.3s; }
+        .bbs-item:hover { border-color: var(--accent-color); transform: translateX(5px); }
+        .bbs-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 10px; }
+    </style>
 </head>
 <body>
     <nav class="main-nav">
@@ -17,30 +27,64 @@
 
     <div class="container">
         <div class="content-box">
-            <h1>コミュニティ掲示板</h1>
-            <p id="bbs-status" style="color: var(--text-muted);">
-                ※ 掲示板を利用するには <a href="discord-auth.html" style="color: var(--accent-color);">Discord連携</a> が必要です。
-            </p>
+            <h1>Community Board</h1>
+            <p id="auth-status" style="color: #ff6b6b;">🔒 書き込みにはDiscord連携が必要です</p>
         </div>
 
-        <div class="content-box" style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <input type="text" id="bbs-search" placeholder="スレッドを検索..." style="flex: 1; padding: 10px; border-radius: 5px; border: 1px solid var(--border-color); background: #000; color: white;">
-            <button class="btn" onclick="openCreateModal()" style="background: var(--accent-color);">＋ 掲示板作成</button>
+        <div class="bbs-header">
+            <input type="text" id="bbs-search" class="search-bar" placeholder="スレッドのタイトルで検索...">
+            <button id="create-btn" class="create-btn" onclick="openModal()" disabled>＋ 掲示板作成</button>
         </div>
 
-        <h2 style="margin-left: 10px;">スレッド一覧</h2>
-        <div id="bbs-list" class="grid" style="grid-template-columns: 1fr;">
-            <div class="card" style="text-align: left; padding: 20px;">
-                <h3>【雑談】みんなで話そう！</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted);">投稿者: PiloBot | 最終更新: 2026/03/17</p>
-            </div>
-            <div class="card" style="text-align: left; padding: 20px;">
-                <h3>【質問】アドオンの入れ方について</h3>
-                <p style="font-size: 0.8rem; color: var(--text-muted);">投稿者: PiloBot | 最終更新: 2026/03/16</p>
+        <div id="bbs-list">
+            <div class="bbs-item">
+                <h3 style="margin:0; color:var(--accent-color);">【公式】PilotSky 掲示板へようこそ！</h3>
+                <p style="margin:10px 0 0 0;">まずはここであいさつをしましょう。</p>
+                <div class="bbs-meta">投稿者: 管理者 | 最終更新: 2026/03/17</div>
             </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <div id="modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:9999; align-items:center; justify-content:center;">
+        <div class="content-box" style="width:90%; max-width:500px;">
+            <h2>新規スレッド作成</h2>
+            <input type="text" id="new-title" placeholder="タイトル" style="width:100%; padding:10px; margin-bottom:15px; background:#000; color:white; border:1px solid #333;"><br>
+            <textarea id="new-content" placeholder="本文" style="width:100%; height:100px; padding:10px; background:#000; color:white; border:1px solid #333;"></textarea>
+            <div style="text-align:right; margin-top:15px;">
+                <button onclick="closeModal()" style="background:none; color:white; border:none; margin-right:15px;">キャンセル</button>
+                <button onclick="submitThread()" class="create-btn">投稿する</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ログイン状態のチェック
+        function checkAuth() {
+            const token = localStorage.getItem('discord_access_token');
+            const statusText = document.getElementById('auth-status');
+            const btn = document.getElementById('create-btn');
+
+            if (token) {
+                statusText.innerText = "✅ Discord連携済み：書き込み可能です";
+                statusText.style.color = "#58a6ff";
+                btn.disabled = false;
+            }
+        }
+
+        function openModal() { document.getElementById('modal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+        async function submitThread() {
+            const title = document.getElementById('new-title').value;
+            const content = document.getElementById('new-content').value;
+            if(!title || !content) return alert("入力してください");
+
+            // ここで本来はFirebaseにデータを保存します
+            alert("投稿しました！(Firebase保存処理をここに実装)");
+            closeModal();
+        }
+
+        window.onload = checkAuth;
+    </script>
 </body>
 </html>
