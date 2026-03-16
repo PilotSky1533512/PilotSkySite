@@ -5,31 +5,33 @@
     <title>認証中... | PilotSky</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body style="background: var(--bg-color); color: white; display: flex; align-items: center; justify-content: center; height: 100vh;">
-    <div class="content-box" style="text-align: center;">
-        <h2 id="auth-msg">Discord認証を処理中...</h2>
-        <p>自動で掲示板に移動します。</p>
+<body style="background:#000; color:white; display:flex; align-items:center; justify-content:center; height:100vh; font-family:sans-serif;">
+    <div style="text-align: center;">
+        <h2 id="status-msg">Discord認証を処理しています...</h2>
+        <p>完了後、自動的に掲示板へ移動します。</p>
     </div>
 
     <script>
         window.onload = function() {
-            // URLの「#access_token=...」の部分を解析
+            // URLの「#access_token=...」を解析
             const hash = window.location.hash.slice(1);
             const params = new URLSearchParams(hash);
             const token = params.get('access_token');
 
             if (token) {
-                // ブラウザにログイン情報を保存
+                // ブラウザのLocalStorageに保存
                 localStorage.setItem('discord_access_token', token);
-                document.getElementById('auth-msg').innerText = "認証に成功しました！";
+                document.getElementById('status-msg').innerText = "認証に成功しました！";
                 
                 // 1秒後に掲示板へ移動
                 setTimeout(() => {
                     location.href = "bbs.html";
                 }, 1000);
             } else {
-                document.getElementById('auth-msg').innerText = "認証に失敗しました。";
-                document.getElementById('auth-msg').style.color = "red";
+                document.getElementById('status-msg').innerText = "認証に失敗しました。";
+                document.getElementById('status-msg').style.color = "red";
+                // 3秒後にOtherページに戻す
+                setTimeout(() => { location.href = "other.html"; }, 3000);
             }
         };
     </script>
