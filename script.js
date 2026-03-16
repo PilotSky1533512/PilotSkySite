@@ -77,3 +77,26 @@ window.onload = () => {
     updateVisitorStats();
     fetchNews();
 };
+
+// 認証後のトークン取得処理
+function handleDiscordAuth() {
+    const fragment = new URLSearchParams(window.location.hash.slice(1));
+    const accessToken = fragment.get('access_token');
+
+    if (accessToken) {
+        // トークンをブラウザに保存（これでログイン状態を維持）
+        localStorage.setItem('discord_token', accessToken);
+        // URLを綺麗にする（ハッシュを消す）
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        alert("Discord連携に成功しました！掲示板が利用可能です。");
+        location.href = "bbs.html"; // 掲示板へ移動
+    }
+}
+
+// 既存の window.onload に追加
+const originalOnload = window.onload;
+window.onload = () => {
+    if (originalOnload) originalOnload();
+    handleDiscordAuth();
+};
