@@ -1,60 +1,126 @@
-const NEWS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
+const FIREBASE_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
 const BBS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/bbs";
+const VERSION_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/version.json";
 
-// --- お知らせ投稿 ---
-async function postNews() {
+let newsData = [];
+
+// --- お知らせ機能 ---
+
+// 現在のお知らせを取得
+async function fetchCurrentNews() {
+    const res = await fetch(FIREBASE_URL);
+    const data = await res.json();
+    newsData = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+    renderNewsList();
+}
+
+// リストの描画（編集・削除ボタン付き）
+function renderNewsList() {
+    const container = document.getElementById('admin-news-list');
+    container.innerHTML = "<h4>現在リストにあるお知らせ</h4>";
+    newsData.forEach((item, index) => {
+        container.innerHTML += `
+            <div class="manage-item">
+                <div class="info-area">
+                    <strong>${item.title}</strong>
+                </div>
+                <div class="btn-group">
+                    <button class="edit-btn" onclick="editNews(${index})">編集</button>
+                    <button class="delete-btn" onclick="deleteNews(${index})">削除</button>
+                </div>
+            </div>`;
+    });
+}
+
+// 追加または更新
+function addOrUpdateNews() {
     const title = document.getElementById('news-title').value;
     const content = document.getElementById('news-content').value;
+    const editIndex = document.getElementById('edit-index').value;
+
     if (!title || !content) return alert("入力してください");
 
-    const newsData = { title, content, date: new Date().toLocaleString() };
-    try {
-        await fetch(NEWS_URL, { method: 'POST', body: JSON.stringify(newsData) });
-        alert("お知らせを公開しました");
-        location.reload();
-    } catch (e) { alert("失敗しました"); }
+    if (editIndex !== "") {
+        newsData[editIndex] = { title, content, date: new Date().toLocaleString() };
+        document.getElementById('edit-index').value = "";
+        document.getElementById('add-btn').innerText = "リストに追加 / 更新";
+    } else {
+        newsData.push({ title, content, date: new Date().toLocaleString() });
+    }
+
+    document.getElementById('news-title').value = "";
+    document.getElementById('news-content').value = "";
+    renderNewsList();
 }
 
-// --- 掲示板管理：スレッド取得 ---
-async function fetchAdminBBS() {
-    const listContainer = document.getElementById('admin-bbs-list');
+function editNews(index) {
+    const item = newsData[index];
+    document.getElementById('news-title').value = item.title;
+    document.getElementById('news-content').value = item.content;
+    document.getElementById('edit-index').value = index;
+    document.getElementById('add-btn').innerText = "この内容で確定する";
+    window.scrollTo(0, 0);
+}
+
+function deleteNews(index) {
+    if (!confirm("リストから削除しますか？")) return;
+    newsData.splice(index, 1);
+    renderNewsList();
+}
+
+// Firebaseへ保存（世界中に反映）
+async function saveToFirebase() {
+    const pass = prompt("管理者パスワードを入力してください");
+    if (pass !== "AdminPassPilotSky") return alert("パスワードが違います");
+
     try {
-        const res = await fetch(`${BBS_URL}.json`);
-        const data = await res.json();
-        listContainer.innerHTML = "";
-
-        if (!data) {
-            listContainer.innerHTML = "<p>現在スレッドはありません。</p>";
-            return;
-        }
-
-        Object.keys(data).reverse().forEach(id => {
-            const t = data[id];
-            listContainer.innerHTML += `
-                <div class="bbs-manage-item">
-                    <div>
-                        <strong style="color:var(--accent-color);">${t.title}</strong><br>
-                        <small style="color:gray;">投稿者: ${t.author} | ID: ${t.authorId}</small>
-                    </div>
-                    <button class="delete-btn" onclick="deleteThread('${id}')">削除</button>
-                </div>
-            `;
+        // お知らせ保存
+        await fetch(FIREBASE_URL, {
+            method: 'PUT',
+            body: JSON.stringify(newsData)
         });
-    } catch (e) { listContainer.innerHTML = "<p>エラーが発生しました。</p>"; }
+        
+        // 全ユーザーに再読み込み通知（バージョン更新）
+        await fetch(VERSION_URL, {
+            method: 'PUT',
+            body: JSON.stringify(Date.now())
+        });
+
+        alert("世界中に反映が完了しました！");
+    } catch (e) { alert("送信エラー"); }
 }
 
-// --- 掲示板管理：削除処理 ---
+// --- 掲示板管理 ---
+
+async function fetchAdminBBS() {
+    const container = document.getElementById('admin-bbs-list');
+    const res = await fetch(`${BBS_URL}.json`);
+    const data = await res.json();
+    container.innerHTML = "";
+
+    if (!data) return container.innerHTML = "<p>スレッドはありません</p>";
+
+    Object.keys(data).reverse().forEach(id => {
+        const t = data[id];
+        container.innerHTML += `
+            <div class="manage-item">
+                <div class="info-area">
+                    <strong>${t.title}</strong><br>
+                    <small>${t.author} | ${t.authorId}</small>
+                </div>
+                <button class="delete-btn" onclick="deleteThread('${id}')">削除</button>
+            </div>`;
+    });
+}
+
 async function deleteThread(id) {
-    if (!confirm("本当にこのスレッドを削除しますか？\n(この操作は取り消せません)")) return;
-
-    try {
-        await fetch(`${BBS_URL}/${id}.json`, { method: 'DELETE' });
-        alert("スレッドを削除しました");
-        fetchAdminBBS(); // 一覧を再更新
-    } catch (e) { alert("削除に失敗しました"); }
+    if (!confirm("このスレッドを完全に削除しますか？")) return;
+    await fetch(`${BBS_URL}/${id}.json`, { method: 'DELETE' });
+    fetchAdminBBS();
 }
 
-// 起動時
+// 初期起動
 window.onload = () => {
+    fetchCurrentNews();
     fetchAdminBBS();
 };
