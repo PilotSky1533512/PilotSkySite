@@ -88,3 +88,33 @@
     </script>
 </body>
 </html>
+
+<div class="container">
+    <div id="bbs-main">
+        <div class="content-box">
+            <h1>Community Board</h1>
+            <p id="auth-status">🔒 Discord連携が必要です</p>
+        </div>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <input type="text" id="bbs-search" class="search-bar" placeholder="検索...">
+            <button id="create-btn" class="create-btn" onclick="openModal()" disabled>＋ 新規投稿</button>
+        </div>
+        <div id="bbs-list"></div>
+    </div>
+
+    <div id="thread-detail" style="display:none;">
+        <button onclick="backToList()" style="background:none; color:var(--accent-color); border:none; cursor:pointer; margin-bottom:20px;">← 戻る</button>
+        <div class="content-box">
+            <h2 id="detail-title"></h2>
+            <p id="detail-content" style="white-space:pre-wrap;"></p>
+        </div>
+        
+        <h3>メッセージ</h3>
+        <div id="comment-list" class="content-box" style="max-height:400px; overflow-y:auto;"></div>
+        
+        <div class="content-box" style="margin-top:20px;">
+            <textarea id="comment-input" placeholder="メッセージを入力..." style="width:100%; background:#000; color:#white; border:1px solid #333; padding:10px;"></textarea>
+            <button onclick="postComment()" class="create-btn" style="margin-top:10px; width:100%;">送信</button>
+        </div>
+    </div>
+</div>
