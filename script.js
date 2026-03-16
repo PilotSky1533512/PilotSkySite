@@ -100,3 +100,18 @@ window.onload = () => {
     if (originalOnload) originalOnload();
     handleDiscordAuth();
 };
+
+// bbs.html 用のスクリプト (script.js に追加してもOK)
+function checkLogin() {
+    const token = localStorage.getItem('discord_access_token');
+    const statusText = document.getElementById('bbs-status');
+    const createBtn = document.getElementById('create-thread-btn'); // ボタンにこのIDをつけておく
+
+    if (token) {
+        statusText.innerHTML = "<span style='color: #58a6ff;'>● Discord連携済み</span>";
+        if (createBtn) createBtn.disabled = false;
+    } else {
+        statusText.innerHTML = "書き込みには <a href='discord-auth.html' style='color:var(--accent-color)'>Discord連携</a> が必要です。";
+        if (createBtn) createBtn.disabled = true;
+    }
+}
