@@ -3,38 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PilotSky | 管理者パネル</title>
+    <title>PilotSky | Admin Panel</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .admin-section { margin-bottom: 40px; padding: 20px; border: 1px solid #333; border-radius: 12px; }
-        .bbs-manage-item { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px; border-bottom: 1px solid #222; 
+        .admin-container { max-width: 800px; margin: 40px auto; padding: 20px; }
+        .admin-section { 
+            background: var(--section-bg); 
+            border: 1px solid var(--border-color); 
+            padding: 25px; border-radius: 15px; margin-bottom: 30px; 
         }
-        .delete-btn { background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
-        .delete-btn:hover { background: #cc0000; }
+        .admin-section h2 { margin-top: 0; color: var(--accent-color); border-bottom: 1px solid #333; padding-bottom: 10px; }
+        
+        input, textarea { 
+            width: 100%; padding: 12px; margin-bottom: 10px; 
+            background: #000; color: #fff; border: 1px solid #444; border-radius: 8px; box-sizing: border-box;
+        }
+
+        .manage-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 12px; border-bottom: 1px solid #222; gap: 10px;
+        }
+        .info-area { flex: 1; }
+        .btn-group { display: flex; gap: 5px; }
+        
+        .edit-btn { background: #ffc107; color: #000; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        .delete-btn { background: #ff4444; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+        
+        .save-banner {
+            background: #1a1a1a; border: 2px solid #ffc107; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center;
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1>Admin Control Panel</h1>
+<body class="dark-mode">
+    <div class="admin-container">
+        <h1 style="text-align: center; text-shadow: 0 0 10px var(--accent-glow);">Admin Control Panel</h1>
 
         <div class="admin-section">
-            <h2>📢 お知らせ投稿</h2>
-            <input type="text" id="news-title" placeholder="タイトル" style="width:100%; margin-bottom:10px; padding:10px; background:#000; color:#fff; border:1px solid #444;">
-            <textarea id="news-content" placeholder="内容" style="width:100%; height:100px; padding:10px; background:#000; color:#fff; border:1px solid #444;"></textarea>
-            <button onclick="postNews()" class="btn" style="width:100%; margin-top:10px;">お知らせを公開</button>
+            <h2>📢 お知らせ管理</h2>
+            <input type="hidden" id="edit-index" value="">
+            <input type="text" id="news-title" placeholder="タイトル">
+            <textarea id="news-content" placeholder="内容" style="height: 100px;"></textarea>
+            <button onclick="addOrUpdateNews()" id="add-btn" class="btn" style="width: 100%; background: var(--accent-color);">リストに追加 / 更新</button>
+
+            <div id="admin-news-list" style="margin-top:20px;">
+                </div>
+
+            <div class="save-banner">
+                <h3 style="color: #ffc107; margin: 0 0 10px 0;">世界中へ反映</h3>
+                <button onclick="saveToFirebase()" style="background: #ffc107; color: #000; width: 100%; font-weight: bold; padding: 12px; border: none; border-radius: 5px; cursor: pointer;">
+                    保存してサイトを更新する
+                </button>
+            </div>
         </div>
 
         <div class="admin-section">
             <h2>📋 掲示板管理</h2>
-            <p style="font-size: 0.8rem; color: gray; margin-bottom: 15px;">不適切なスレッドを削除できます。</p>
             <div id="admin-bbs-list">
-                <p>スレッドを読み込み中...</p>
+                <p style="color:gray; text-align:center;">読み込み中...</p>
             </div>
         </div>
 
-        <button onclick="location.href='index.html'" style="background:none; color:gray; border:none; cursor:pointer;">← サイトに戻る</button>
+        <div style="text-align: center;">
+            <button onclick="location.href='index.html'" style="background:none; color:gray; border:none; cursor:pointer;">← サイトに戻る</button>
+        </div>
     </div>
 
     <script src="admin-script.js"></script>
