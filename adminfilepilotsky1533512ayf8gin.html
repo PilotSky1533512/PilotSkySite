@@ -2,190 +2,41 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>PilotSky 管理者パネル</title>
-    <link rel="icon" href="piroaddon.png" type="image/png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PilotSky | 管理者パネル</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .top-btn {
-            position: fixed !important;
-            right: 20px !important;
-            bottom: 20px !important;
-            width: 60px;
-            height: 60px;
-            z-index: 9999;
-            background-color: var(--accent-color);
-            padding: 0;
-            border: none;
-            border-radius: 50%;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            transition: transform 0.3s;
+        .admin-section { margin-bottom: 40px; padding: 20px; border: 1px solid #333; border-radius: 12px; }
+        .bbs-manage-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; border-bottom: 1px solid #222; 
         }
-        .top-btn:hover { transform: scale(1.1); }
-        .top-btn img { width: 100%; height: 100%; object-fit: contain; }
-
-        /* アップデートボタン用の追加スタイル */
-        .update-box {
-            background: #1a1a1a;
-            border: 2px solid #00ffcc;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
+        .delete-btn { background: #ff4444; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+        .delete-btn:hover { background: #cc0000; }
     </style>
 </head>
-<body class="dark-mode"> 
-    <header>
-        <h1>管理者専用パネル</h1>
-        <a href="index.html" style="color: var(--text-color); text-decoration: none; border: 1px solid #777; padding: 5px 10px; border-radius: 4px;">サイトへ戻る</a>
-    </header>
+<body>
+    <div class="container">
+        <h1>Admin Control Panel</h1>
 
-    <main>
-        <section class="admin-box">
-            <h2>運営募集履歴</h2>
-            <p>募集内容は Formspree の管理画面で安全に保管されています。</p>
-            <a href="https://formspree.io/forms" target="_blank">
-                <button class="dl-btn">Formspree 受信箱を確認する</button>
-            </a>
-        </section>
+        <div class="admin-section">
+            <h2>📢 お知らせ投稿</h2>
+            <input type="text" id="news-title" placeholder="タイトル" style="width:100%; margin-bottom:10px; padding:10px; background:#000; color:#fff; border:1px solid #444;">
+            <textarea id="news-content" placeholder="内容" style="width:100%; height:100px; padding:10px; background:#000; color:#fff; border:1px solid #444;"></textarea>
+            <button onclick="postNews()" class="btn" style="width:100%; margin-top:10px;">お知らせを公開</button>
+        </div>
 
-        <section class="admin-box">
-            <h2>お知らせ設定</h2>
-            <div id="announcement-list">
-                <p>データを読み込み中...</p>
+        <div class="admin-section">
+            <h2>📋 掲示板管理</h2>
+            <p style="font-size: 0.8rem; color: gray; margin-bottom: 15px;">不適切なスレッドを削除できます。</p>
+            <div id="admin-bbs-list">
+                <p>スレッドを読み込み中...</p>
             </div>
-            
-            <hr style="border: 0; border-top: 1px solid #555; margin: 20px 0;">
-            <h3>新しいお知らせを追加 / 編集</h3>
-            <input type="text" id="news-title" placeholder="タイトル (例: 2026/03/14)">
-            <textarea id="news-content" rows="3" placeholder="内容 (例: 公式サイトを公開しました！)"></textarea>
-            <button onclick="addNews()" style="background: var(--accent-color); color:white; width: 100%; margin-bottom: 10px;">リストに追加</button>
+        </div>
 
-            <div style="background: #333; padding: 15px; border-radius: 8px; border: 1px solid #ffc107; margin-top: 20px;">
-                <h3 style="color: #ffc107; margin-top: 0;">世界中へ反映（Firebase送信）</h3>
-                <p style="font-size: 0.85em; color: #ccc;">お知らせを保存すると、全ユーザーに「再読み込み通知」が飛びます。</p>
-                <button onclick="saveToSite()" style="background: #ffc107; color: #000; width: 100%; font-size: 1.1em; font-weight: bold;">
-                    保存して世界中に反映
-                </button>
-            </div>
+        <button onclick="location.href='index.html'" style="background:none; color:gray; border:none; cursor:pointer;">← サイトに戻る</button>
+    </div>
 
-            <div class="update-box">
-                <h3 style="color: #00ffcc; margin-top: 0;">システムアップデート通知</h3>
-                <p style="font-size: 0.85em;">HTMLやCSSを直接書き換えてアップロードした後は、下のボタンを押して全員に通知してください。</p>
-                <button onclick="updateSiteVersion()" style="background: #00ffcc; color: #000; width: 100%; font-weight: bold;">
-                    コード変更を全員に通知する
-                </button>
-            </div>
-
-            <hr style="border: 0; border-top: 1px solid #555; margin: 20px 0;">
-            <h3>【バックアップ用】HTMLコード</h3>
-            <div class="secret-code" id="output-code"></div>
-        </section>
-    </main>
-
-    <footer>
-        <p>©2026 PilotSkyTEAM</p>
-    </footer>
-
-    <button id="top-button" class="top-btn" onclick="scrollToTop()">
-        <img src="TopBotton.png" alt="Top">
-    </button>
-
-    <script>
-        const FIREBASE_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
-        const VERSION_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/version.json";
-        let newsData = [];
-
-        function scrollToTop() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        async function fetchCurrentNews() {
-            try {
-                const response = await fetch(FIREBASE_URL);
-                const data = await response.json();
-                if (data) {
-                    newsData = Array.isArray(data) ? data : Object.values(data);
-                } else {
-                    newsData = [{ title: "2026/03/14", content: "公式サイトを公開しました！" }];
-                }
-                renderNews();
-            } catch (e) {
-                console.error("データ取得失敗", e);
-            }
-        }
-
-        function renderNews() {
-            const list = document.getElementById('announcement-list');
-            const output = document.getElementById('output-code');
-            list.innerHTML = '';
-            let htmlCode = "<ul>\n";
-            newsData.forEach((item, index) => {
-                list.innerHTML += `<div class="announcement-item"><span><strong>${item.title}</strong>: ${item.content}</span><div><button onclick="editNews(${index})" style="background:#666; color:white; margin-right:5px;">編集</button><button onclick="deleteNews(${index})" style="background:#dc3545; color:white;">削除</button></div></div>`;
-                htmlCode += `  <li><strong>${item.title}</strong> - ${item.content}</li>\n`;
-            });
-            htmlCode += "</ul>";
-            output.innerText = htmlCode;
-        }
-
-        function addNews() {
-            const title = document.getElementById('news-title').value;
-            const content = document.getElementById('news-content').value;
-            if(!title || !content) return alert("入力してください");
-            newsData.push({ title, content });
-            renderNews();
-            document.getElementById('news-title').value = '';
-            document.getElementById('news-content').value = '';
-        }
-
-        function deleteNews(index) {
-            if(confirm("削除しますか？")) { newsData.splice(index, 1); renderNews(); }
-        }
-
-        function editNews(index) {
-            document.getElementById('news-title').value = newsData[index].title;
-            document.getElementById('news-content').value = newsData[index].content;
-            newsData.splice(index, 1);
-            renderNews();
-        }
-
-        // サイトバージョンを更新する関数
-        async function updateSiteVersion(silent = false) {
-            const newVersion = Date.now();
-            try {
-                await fetch(VERSION_URL, {
-                    method: 'PUT',
-                    body: JSON.stringify(newVersion)
-                });
-                if(!silent) alert("アップデート通知を送信しました！");
-            } catch (e) {
-                if(!silent) alert("バージョン更新に失敗しました");
-            }
-        }
-
-        async function saveToSite() {
-            const pass = prompt("管理者パスワードを入力してください");
-            if (pass !== "AdminPassPilotSky") return alert("パスワードが違います");
-            if (!confirm("世界中に公開しますか？")) return;
-            try {
-                // お知らデータの保存
-                await fetch(FIREBASE_URL, {
-                    method: 'PUT',
-                    body: JSON.stringify(newsData),
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                // 同時にお知らせ更新を通知するためにバージョンも更新
-                await updateSiteVersion(true);
-
-                alert("反映完了！全ユーザーに通知を送りました。");
-            } catch (e) { alert("送信失敗"); }
-        }
-        
-        fetchCurrentNews();
-    </script>
+    <script src="admin-script.js"></script>
 </body>
 </html>
