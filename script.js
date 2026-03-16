@@ -132,3 +132,116 @@ window.onload = () => {
         if(btn) btn.disabled = false;
     }
 };
+
+// スレッドの有効期限（15日間 = 15 * 24 * 60 * 60 * 1000 ミリ秒）
+const EXPIRATION_MS = 15 * 24 * 60 * 60 * 1000;
+
+// スレッド一覧の描画（期限チェック・評価ボタン・残り日数付き）
+function renderThreads(threadsObj) {
+    const listContainer = document.getElementById('bbs-list');
+    if (!listContainer) return;
+    listContainer.innerHTML = "";
+
+    const now = Date.now();
+
+    Object.keys(threadsObj).reverse().forEach(id => {
+        const t = threadsObj[id];
+        
+        // 最終更新日（メッセージがあれば最後のメッセージ、なければ作成日）
+        const lastActivityDate = t.lastActivity ? new Date(t.lastActivity).getTime() : new Date(t.date).getTime();
+        const diff = now - lastActivityDate;
+        const remainingMs = EXPIRATION_MS - diff;
+
+        // 15日経過していたらスキップ（自動削除の擬似処理）
+        if (remainingMs <= 0) {
+            deleteThreadAuto(id);
+            return;
+        }
+
+        const remainingDays = Math.ceil(remainingMs / (1000 * 60 * 60 * 24));
+
+        listContainer.innerHTML += `
+            <div class="bbs-item" style="background:var(--section-bg); border:1px solid var(--border-color); padding:20px; border-radius:12px; margin-bottom:15px; position:relative;">
+                <div onclick="openThread('${id}')" style="cursor:pointer;">
+                    <h3 style="margin:0; color:var(--accent-color);">${t.title}</h3>
+                    <div class="bbs-meta" style="margin-bottom:10px;">
+                        <span style="color:#ffa500;">⏳ 削除まで残り: ${remainingDays}日</span>
+                    </div>
+                    <p style="margin:5px 0; color:#ccc;">${t.content.substring(0, 50)}...</p>
+                </div>
+                
+                <div style="display:flex; align-items:center; gap:15px; margin-top:15px; border-top:1px solid #333; padding-top:10px;">
+                    <button onclick="vote('${id}', 'up')" style="background:none; border:none; color:#58a6ff; cursor:pointer;">👍 ${t.upvotes || 0}</button>
+                    <button onclick="vote('${id}', 'down')" style="background:none; border:none; color:#ff6b6b; cursor:pointer;">👎 ${t.downvotes || 0}</button>
+                    <small style="color:gray; margin-left:auto;">作成日: ${t.date}</small>
+                </div>
+            </div>`;
+    });
+}
+
+// メッセージ（返信）の描画
+function renderComments(comments) {
+    const container = document.getElementById('comment-list');
+    container.innerHTML = "";
+    if (!comments) return;
+
+    Object.values(comments).forEach(c => {
+        const isAuthor = (c.authorId === allThreads[currentThreadId].authorId);
+        container.innerHTML += `
+            <div class="comment-box" style="display:flex; gap:12px; align-items:flex-start; border-bottom:1px solid #333; padding:15px 0;">
+                <img src="${c.authorIcon}" style="width:40px; height:40px; border-radius:50%; border: 1px solid #444;">
+                <div>
+                    <div style="font-size:0.85rem;">
+                        <span style="color:var(--accent-color); font-weight:bold;">${c.author}</span>
+                        <span style="color:gray; margin-left:8px; font-size:0.7rem;">| ${c.authorId}</span>
+                        ${isAuthor ? '<span style="background:#5865F2; color:white; font-size:0.6rem; padding:2px 6px; border-radius:4px; margin-left:8px;">作成者</span>' : ''}
+                    </div>
+                    <p style="margin:5px 0; line-height:1.5;">${c.text}</p>
+                    <small style="color:#555; font-size:0.7rem;">${c.date} 投稿</small>
+                </div>
+            </div>`;
+    });
+}
+
+// 評価ボタンの処理
+async function vote(id, type) {
+    const token = localStorage.getItem('discord_access_token');
+    if (!token) return alert("評価にはログインが必要です");
+
+    const t = allThreads[id];
+    const key = type === 'up' ? 'upvotes' : 'downvotes';
+    const newVal = (t[key] || 0) + 1;
+
+    await fetch(`${BBS_URL}/${id}/${key}.json`, {
+        method: 'PUT',
+        body: JSON.stringify(newVal)
+    });
+    fetchBBS(); // 再読み込み
+}
+
+// 自動削除処理
+async function deleteThreadAuto(id) {
+    await fetch(`${BBS_URL}/${id}.json`, { method: 'DELETE' });
+}
+
+// メッセージ送信時にlastActivityを更新
+async function postComment() {
+    const text = document.getElementById('comment-input').value;
+    if (!text) return;
+    const now = new Date().toISOString();
+
+    const newComment = {
+        text: text,
+        author: currentUser.name,
+        authorId: currentUser.id,
+        authorIcon: currentUser.avatar,
+        date: new Date().toLocaleString()
+    };
+
+    // メッセージ追加と同時にスレッドの最終アクティビティを更新
+    await fetch(`${BBS_URL}/${currentThreadId}/comments.json`, { method: 'POST', body: JSON.stringify(newComment) });
+    await fetch(`${BBS_URL}/${currentThreadId}/lastActivity.json`, { method: 'PUT', body: JSON.stringify(now) });
+    
+    document.getElementById('comment-input').value = "";
+    location.reload();
+}
