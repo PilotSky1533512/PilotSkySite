@@ -1,7 +1,10 @@
+// --- 設定エリア ---
 const NEWS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
 const STATS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/visitors.json";
+// 掲示板用URL（仮：Firebaseにbbsノードを作成する場合）
+const BBS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/bbs.json";
 
-// 1. 訪問者数カウント
+// --- 1. 訪問者数カウント ---
 async function updateVisitorStats() {
     try {
         const todayStr = new Date().toLocaleDateString();
@@ -14,11 +17,6 @@ async function updateVisitorStats() {
         const response = await fetch(STATS_URL);
         let stats = await response.json() || { total: 0, today: 0, yesterday: 0, lastUpdate: todayStr };
 
-        // 数値の保証
-        stats.total = Number(stats.total) || 0;
-        stats.today = Number(stats.today) || 0;
-        stats.yesterday = Number(stats.yesterday) || 0;
-
         if (stats.lastUpdate !== todayStr) {
             stats.yesterday = stats.today;
             stats.today = 0;
@@ -26,16 +24,8 @@ async function updateVisitorStats() {
         }
 
         let changed = false;
-        if (!hasCountedTotal) {
-            stats.total += 1;
-            localStorage.setItem(TOTAL_KEY, "true");
-            changed = true;
-        }
-        if (lastDailyVisit !== todayStr) {
-            stats.today += 1;
-            localStorage.setItem(DAILY_KEY, todayStr);
-            changed = true;
-        }
+        if (!hasCountedTotal) { stats.total += 1; localStorage.setItem(TOTAL_KEY, "true"); changed = true; }
+        if (lastDailyVisit !== todayStr) { stats.today += 1; localStorage.setItem(DAILY_KEY, todayStr); changed = true; }
 
         if (changed) {
             await fetch(STATS_URL, { method: 'PUT', body: JSON.stringify(stats) });
@@ -49,7 +39,7 @@ async function updateVisitorStats() {
     } catch (e) { console.error("Stats Error:", e); }
 }
 
-// 2. お知らせ取得
+// --- 2. お知らせ取得 ---
 async function fetchNews() {
     const container = document.getElementById('news-container');
     if (!container) return;
@@ -60,58 +50,73 @@ async function fetchNews() {
             container.innerHTML = "";
             const list = Array.isArray(data) ? data : Object.values(data);
             list.reverse().forEach(item => {
-                container.innerHTML += `
-                <div class="content-box">
-                    <h3 style="color:#58a6ff; margin-top:0;">${item.title}</h3>
-                    <p style="margin-bottom:0;">${item.content}</p>
-                </div>`;
+                container.innerHTML += `<div class="content-box"><h3>${item.title}</h3><p>${item.content}</p></div>`;
             });
         }
-    } catch (e) { 
-        if(container) container.innerHTML = "お知らせを読み込めませんでした。"; 
+    } catch (e) { console.error("News Error:", e); }
+}
+
+// --- 3. 掲示板システム ---
+let allThreads = []; // 全スレッド保持用
+
+async function fetchBBS() {
+    const listContainer = document.getElementById('bbs-list');
+    if (!listContainer) return;
+
+    try {
+        const res = await fetch(BBS_URL);
+        const data = await res.json();
+        allThreads = data ? (Array.isArray(data) ? data : Object.values(data)) : [];
+        renderThreads(allThreads);
+    } catch (e) {
+        listContainer.innerHTML = "<p>掲示板データを読み込めませんでした。</p>";
     }
 }
 
-// ページ読み込み時に実行
+function renderThreads(threads) {
+    const listContainer = document.getElementById('bbs-list');
+    if (!listContainer) return;
+    listContainer.innerHTML = "";
+
+    threads.reverse().forEach(t => {
+        listContainer.innerHTML += `
+            <div class="bbs-item" style="background:var(--section-bg); border:1px solid var(--border-color); padding:15px; border-radius:10px; margin-bottom:10px;">
+                <h3 style="margin:0; color:var(--accent-color);">${t.title}</h3>
+                <p style="margin:5px 0;">${t.content}</p>
+                <small style="color:gray;">投稿者: ${t.author || '不明'} | ${t.date || ''}</small>
+            </div>`;
+    });
+}
+
+// 掲示板検索機能
+const searchInput = document.getElementById('bbs-search');
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const word = e.target.value.toLowerCase();
+        const filtered = allThreads.filter(t => t.title.toLowerCase().includes(word));
+        renderThreads(filtered);
+    });
+}
+
+// 掲示板：ログイン（連携）状態のチェック
+function checkBBSAuth() {
+    const token = localStorage.getItem('discord_access_token');
+    const statusText = document.getElementById('auth-status');
+    const createBtn = document.getElementById('create-btn');
+
+    if (token) {
+        if (statusText) {
+            statusText.innerText = "✅ Discord連携済み：書き込み可能です";
+            statusText.style.color = "#58a6ff";
+        }
+        if (createBtn) createBtn.disabled = false;
+    }
+}
+
+// --- ページ読み込み時の実行 ---
 window.onload = () => {
     updateVisitorStats();
     fetchNews();
+    fetchBBS();
+    checkBBSAuth();
 };
-
-// 認証後のトークン取得処理
-function handleDiscordAuth() {
-    const fragment = new URLSearchParams(window.location.hash.slice(1));
-    const accessToken = fragment.get('access_token');
-
-    if (accessToken) {
-        // トークンをブラウザに保存（これでログイン状態を維持）
-        localStorage.setItem('discord_token', accessToken);
-        // URLを綺麗にする（ハッシュを消す）
-        window.history.replaceState({}, document.title, window.location.pathname);
-        
-        alert("Discord連携に成功しました！掲示板が利用可能です。");
-        location.href = "bbs.html"; // 掲示板へ移動
-    }
-}
-
-// 既存の window.onload に追加
-const originalOnload = window.onload;
-window.onload = () => {
-    if (originalOnload) originalOnload();
-    handleDiscordAuth();
-};
-
-// bbs.html 用のスクリプト (script.js に追加してもOK)
-function checkLogin() {
-    const token = localStorage.getItem('discord_access_token');
-    const statusText = document.getElementById('bbs-status');
-    const createBtn = document.getElementById('create-thread-btn'); // ボタンにこのIDをつけておく
-
-    if (token) {
-        statusText.innerHTML = "<span style='color: #58a6ff;'>● Discord連携済み</span>";
-        if (createBtn) createBtn.disabled = false;
-    } else {
-        statusText.innerHTML = "書き込みには <a href='discord-auth.html' style='color:var(--accent-color)'>Discord連携</a> が必要です。";
-        if (createBtn) createBtn.disabled = true;
-    }
-}
