@@ -136,24 +136,13 @@ const STATS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.c
 
 async function updateVisitorStats() {
     try {
-        const todayStr = new Date().toLocaleDateString();
-        // ローカルストレージから「最後に訪問した日」を取得
-        const lastVisit = localStorage.getItem('lastVisitDate');
+        const todayStr = new Date().toLocaleDateString(); // 例: "2026/3/16"
+        
+        // ローカルストレージから記録を取得
+        const hasCountedTotal = localStorage.getItem('hasCountedTotal'); // 総訪問カウント済みか
+        const lastVisitDate = localStorage.getItem('lastVisitDate');    // 最後に「本日」分をカウントした日
 
-        // もし今日すでに訪問済みなら、サーバーのデータ取得だけして終了
-        if (lastVisit === todayStr) {
-            const response = await fetch(STATS_URL);
-            const stats = await response.json();
-            if (stats) {
-                document.getElementById('today-visitors').innerText = stats.today;
-                document.getElementById('yesterday-visitors').innerText = stats.yesterday;
-                document.getElementById('total-visitors').innerText = stats.total;
-            }
-            return; // ここで処理を終えるので、カウントは増えない
-        }
-
-        // --- 初めての訪問、または日付が変わった後の訪問の場合のみ以下を実行 ---
-
+        // 1. サーバーから現在のデータを取得
         const response = await fetch(STATS_URL);
         let stats = await response.json();
 
@@ -161,33 +150,45 @@ async function updateVisitorStats() {
             stats = { total: 0, today: 0, yesterday: 0, lastUpdate: todayStr };
         }
 
-        // サーバー側の日付チェック
+        // 2. 日付が変わっている場合の処理（サーバーデータの更新）
+        // 夜中0時を過ぎて誰かが最初にアクセスした時、前日のデータを「昨日」に移動
         if (stats.lastUpdate !== todayStr) {
             stats.yesterday = stats.today;
             stats.today = 0;
             stats.lastUpdate = todayStr;
         }
 
-        // カウントアップ
-        stats.today += 1;
-        stats.total += 1;
+        let needsUpdate = false;
 
-        // Firebaseに保存
-        await fetch(STATS_URL, {
-            method: 'PUT',
-            body: JSON.stringify(stats)
-        });
+        // 3. 総訪問者数のカウント（このPCで一度もカウントしていない場合のみ）
+        if (!hasCountedTotal) {
+            stats.total += 1;
+            localStorage.setItem('hasCountedTotal', 'true'); // 記録：一生に一度
+            needsUpdate = true;
+        }
 
-        // 画面表示
+        // 4. 本日の訪問者数のカウント（このPCで今日まだカウントしていない場合のみ）
+        if (lastVisitDate !== todayStr) {
+            stats.today += 1;
+            localStorage.setItem('lastVisitDate', todayStr); // 記録：今日は完了
+            needsUpdate = true;
+        }
+
+        // 5. データが更新された場合のみサーバーに保存
+        if (needsUpdate) {
+            await fetch(STATS_URL, {
+                method: 'PUT',
+                body: JSON.stringify(stats)
+            });
+        }
+
+        // 6. 画面に反映
         document.getElementById('today-visitors').innerText = stats.today;
         document.getElementById('yesterday-visitors').innerText = stats.yesterday;
         document.getElementById('total-visitors').innerText = stats.total;
 
-        // 「今日はカウントしたよ」という印をパソコンに保存
-        localStorage.setItem('lastVisitDate', todayStr);
-
     } catch (e) {
-        console.error("訪問者数更新エラー", e);
+        console.error("統計更新エラー:", e);
     }
 }
 
