@@ -2,91 +2,29 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PilotSky1533512 Official Site</title>
-    <link rel="icon" href="piroaddon.png" type="image/png">
+    <title>PilotSky | Home</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
-<body class="dark-mode">
-
-    <header>
-        <h1>PilotSky1533512</h1>
-        <button id="mode-toggle">明 / 暗切り替え </button>
-    </header>
-
-    <main>
-        <section id="announcement">
-            <h2>お知らせ</h2>
-            <div id="news-list">
-                <div id="news-list-content">
-                    <ul>
-                        <li>読み込み中...</li>
-                    </ul>
-                </div>
+<body>
+    <nav class="main-nav">
+        <ul>
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="minecraft.html">Minecraft</a></li>
+            <li><a href="media.html">Media</a></li>
+            <li><a href="other.html">Other</a></li>
+        </ul>
+    </nav>
+    <div class="container">
+        <header class="content-box" style="text-align:center;">
+            <h1>PilotSky Official</h1>
+            <div class="visitor-stats">
+                <div>本日<span id="today-visitors">0</span></div>
+                <div>昨日<span id="yesterday-visitors">0</span></div>
+                <div>累計<span id="total-visitors">0</span></div>
             </div>
-        </section>
-
-        <section id="download">
-            <h2>ダウンロード</h2>
-            <p>最新のアドオンはこちらから。</p>
-            <a href="app.zip" download="PilotSky_Latest">
-                <button class="dl-btn">最新版をダウンロード (.zip)</button>
-            </a>
-        </section>
-
-        <section id="discord">
-            <h2>Discord状況</h2>
-            <div style="margin-bottom: 20px;">
-                <a href="https://x.gd/pirodiscord" target="_blank" rel="noopener noreferrer">
-                    <button style="background-color: #5865F2; width: 100%; color: white;">サーバーに参加する</button>
-                </a>
-            </div>
-            <iframe src="https://discord.com/widget?id=1373198137811800084&theme=dark" width="100%" height="400" allowtransparency="true" frameborder="0" sandbox="allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
-        </section>
-
-        <section id="recruitment">
-            <h2>運営募集</h2>
-            <form action="https://formspree.io/f/xqeyllaz" method="POST">
-                <div class="form-group">
-                    <label>メールアドレス (任意)</label>
-                    <input type="email" name="email">
-                </div>
-                <div class="form-group">
-                    <label>Discord名 (必須)</label>
-                    <input type="text" name="discord_name" required>
-                </div>
-                <div class="form-group">
-                    <label>希望役職</label>
-                    <div class="checkbox-group">
-                        <label class="checkbox-item"><input type="checkbox" name="role" value="Minecraft"> Minecraft</label>
-                        <label class="checkbox-item"><input type="checkbox" name="role" value="Discord"> Discord</label>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>運営になりたい理由</label>
-                    <textarea name="reason" required rows="5"></textarea>
-                </div>
-                <div class="g-recaptcha" data-sitekey="6LfrtoksAAAAAKgcW-iJKU7y9EwjmGNMpa1XJEns"></div>
-                <button type="submit" class="submit-btn">送信する</button>
-            </form>
-        </section>
-    </main>
-
-    <section class="visitor-stats">
-    <p>本日の訪問者数 : <span id="today-visitors">0</span></p>
-    <p>昨日の訪問者数 : <span id="yesterday-visitors">0</span></p>
-    <p>総訪問者数 : <span id="total-visitors">0</span></p>
-</section>
-
-    <footer>
-        <p>©2026 PilotSkyTEAM</p>
-    </footer>
-    
-    <button id="top-button" class="top-btn">
-        <img src="TopBotton.png" alt="Top">
-    </button>
-
+        </header>
+        <div id="news-container"><p style="text-align:center;">読み込み中...</p></div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
