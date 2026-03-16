@@ -1,18 +1,23 @@
 const NEWS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/news.json";
 const STATS_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/visitors.json";
-const VERSION_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/version.json";
-
-let currentDataHash = null;
 
 // 1. 訪問者数カウント
 async function updateVisitorStats() {
     try {
         const todayStr = new Date().toLocaleDateString();
-        const hasCountedTotal = localStorage.getItem('ps_total_vfinal');
-        const lastDailyVisit = localStorage.getItem('ps_daily_vfinal');
+        const TOTAL_KEY = 'ps_total_vfinal';
+        const DAILY_KEY = 'ps_daily_vfinal';
+
+        const hasCountedTotal = localStorage.getItem(TOTAL_KEY);
+        const lastDailyVisit = localStorage.getItem(DAILY_KEY);
 
         const response = await fetch(STATS_URL);
         let stats = await response.json() || { total: 0, today: 0, yesterday: 0, lastUpdate: todayStr };
+
+        // 数値の保証
+        stats.total = Number(stats.total) || 0;
+        stats.today = Number(stats.today) || 0;
+        stats.yesterday = Number(stats.yesterday) || 0;
 
         if (stats.lastUpdate !== todayStr) {
             stats.yesterday = stats.today;
@@ -22,13 +27,13 @@ async function updateVisitorStats() {
 
         let changed = false;
         if (!hasCountedTotal) {
-            stats.total = (Number(stats.total) || 0) + 1;
-            localStorage.setItem('ps_total_vfinal', "true");
+            stats.total += 1;
+            localStorage.setItem(TOTAL_KEY, "true");
             changed = true;
         }
         if (lastDailyVisit !== todayStr) {
-            stats.today = (Number(stats.today) || 0) + 1;
-            localStorage.setItem('ps_daily_vfinal', todayStr);
+            stats.today += 1;
+            localStorage.setItem(DAILY_KEY, todayStr);
             changed = true;
         }
 
@@ -41,7 +46,7 @@ async function updateVisitorStats() {
             document.getElementById('today-visitors').innerText = stats.today;
             document.getElementById('yesterday-visitors').innerText = stats.yesterday;
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { console.error("Stats Error:", e); }
 }
 
 // 2. お知らせ取得
@@ -55,38 +60,20 @@ async function fetchNews() {
             container.innerHTML = "";
             const list = Array.isArray(data) ? data : Object.values(data);
             list.reverse().forEach(item => {
-                container.innerHTML += `<div class="content-box"><h3>${item.title}</h3><p>${item.content}</p></div>`;
+                container.innerHTML += `
+                <div class="content-box">
+                    <h3 style="color:#58a6ff; margin-top:0;">${item.title}</h3>
+                    <p style="margin-bottom:0;">${item.content}</p>
+                </div>`;
             });
-            currentDataHash = JSON.stringify(data);
         }
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        if(container) container.innerHTML = "お知らせを読み込めませんでした。"; 
+    }
 }
 
-// 3. リアルタイム監視 (F5不要)
-function watchUpdate() {
-    setInterval(async () => {
-        try {
-            const res = await fetch(NEWS_URL);
-            const data = await res.json();
-            const newHash = JSON.stringify(data);
-            if (currentDataHash && currentDataHash !== newHash) {
-                showUpdateModal();
-                currentDataHash = newHash;
-            }
-        } catch (e) {}
-    }, 5000);
-}
-
-function showUpdateModal() {
-    if (document.getElementById('update-modal')) return;
-    const div = document.createElement('div');
-    div.id = 'update-modal';
-    div.innerHTML = `<div class="update-content"><h2>📢 データ更新</h2><p>サーバーのデータが更新されました。</p><button onclick="location.reload()">再読み込み</button></div>`;
-    document.body.appendChild(div);
-}
-
+// ページ読み込み時に実行
 window.onload = () => {
     updateVisitorStats();
     fetchNews();
-    watchUpdate();
 };
