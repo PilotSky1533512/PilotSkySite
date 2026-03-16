@@ -6,23 +6,15 @@
     <title>PilotSky | 掲示板</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        /* 掲示板専用追加スタイル */
         .bbs-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
         .search-bar { flex: 1; min-width: 200px; padding: 12px; border-radius: 8px; border: 1px solid var(--border-color); background: #000; color: white; }
         .create-btn { background: var(--accent-color); color: white; border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .create-btn:disabled { background: #333; cursor: not-allowed; opacity: 0.5; }
-        
-        .bbs-item { background: var(--section-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 15px; cursor: pointer; transition: 0.3s; }
+        .bbs-item { background: var(--section-bg); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 15px; transition: 0.3s; }
         .bbs-item:hover { border-color: var(--accent-color); transform: translateX(5px); }
-        .bbs-meta { font-size: 0.8rem; color: var(--text-muted); margin-top: 10px; }
-
-        /* モーダル */
         .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; }
         .modal-content { width:90%; max-width:500px; }
-        
-        /* メッセージリスト */
-        .comment-box { border-bottom: 1px solid #333; padding: 15px 0; }
-        .comment-author { color: var(--accent-color); font-weight: bold; font-size: 0.9rem; }
+        .comment-box { border-bottom: 1px solid #333; padding: 15px 0; display: flex; gap: 12px; align-items: flex-start; }
     </style>
 </head>
 <body>
@@ -39,35 +31,27 @@
         <div id="bbs-main">
             <div class="content-box">
                 <h1>Community Board</h1>
-                <p id="auth-status" style="color: #ff6b6b;">🔒 書き込みにはDiscord連携が必要です</p>
+                <div id="auth-status" style="color: #ff6b6b;">🔒 書き込みにはDiscord連携が必要です</div>
             </div>
-
             <div class="bbs-header">
-                <input type="text" id="bbs-search" class="search-bar" placeholder="スレッドのタイトルで検索...">
+                <input type="text" id="bbs-search" class="search-bar" placeholder="タイトルで検索...">
                 <button id="create-btn" class="create-btn" onclick="openModal()" disabled>＋ 新規スレッド作成</button>
             </div>
-
-            <div id="bbs-list">
-                <p style="text-align:center; color:gray;">読み込み中...</p>
-            </div>
+            <div id="bbs-list"><p style="text-align:center; color:gray;">読み込み中...</p></div>
         </div>
 
         <div id="thread-detail" style="display:none;">
-            <button onclick="backToList()" style="background:none; color:var(--accent-color); border:none; cursor:pointer; font-size:1rem; margin-bottom:20px;">← 一覧に戻る</button>
-            
+            <button onclick="backToList()" style="background:none; color:var(--accent-color); border:none; cursor:pointer; margin-bottom:20px;">← 戻る</button>
             <div class="content-box">
-                <h2 id="detail-title" style="margin-top:0; color:var(--accent-color);"></h2>
-                <p id="detail-content" style="white-space:pre-wrap; line-height:1.6;"></p>
-                <div id="detail-meta" class="bbs-meta"></div>
+                <h2 id="detail-title" style="margin-top:0;"></h2>
+                <div id="detail-meta"></div>
+                <p id="detail-content" style="white-space:pre-wrap; margin-top:20px; line-height:1.6;"></p>
             </div>
-            
-            <h3 style="margin-left:10px;">Messages</h3>
-            <div id="comment-list" class="content-box" style="max-height:500px; overflow-y:auto;">
-                </div>
-            
+            <h3>Messages</h3>
+            <div id="comment-list" class="content-box" style="max-height:500px; overflow-y:auto;"></div>
             <div class="content-box" style="margin-top:20px;">
                 <textarea id="comment-input" placeholder="メッセージを入力..." style="width:100%; height:80px; background:#000; color:white; border:1px solid #333; padding:10px; border-radius:8px; box-sizing:border-box;"></textarea>
-                <button onclick="postComment()" class="create-btn" style="margin-top:10px; width:100%;">メッセージを送信</button>
+                <button onclick="postComment()" class="create-btn" style="margin-top:10px; width:100%;">送信</button>
             </div>
         </div>
     </div>
@@ -75,12 +59,8 @@
     <div id="modal" class="modal">
         <div class="content-box modal-content">
             <h2>新規スレッド作成</h2>
-            <p style="font-size:0.8rem; color:gray; margin-bottom:15px;">タイトルと内容を入力してください。</p>
-            
-            <input type="text" id="new-title" placeholder="スレッドタイトル" style="width:100%; padding:12px; margin-bottom:15px; background:#000; color:white; border:1px solid #333; border-radius:8px; box-sizing:border-box;">
-            
-            <textarea id="new-content" placeholder="スレッドの本文..." style="width:100%; height:150px; padding:12px; background:#000; color:white; border:1px solid #333; border-radius:8px; box-sizing:border-box;"></textarea>
-            
+            <input type="text" id="new-title" placeholder="タイトル" style="width:100%; padding:12px; margin-bottom:15px; background:#000; color:white; border:1px solid #333; border-radius:8px; box-sizing:border-box;">
+            <textarea id="new-content" placeholder="本文..." style="width:100%; height:150px; padding:12px; background:#000; color:white; border:1px solid #333; border-radius:8px; box-sizing:border-box;"></textarea>
             <div style="text-align:right; margin-top:20px;">
                 <button onclick="closeModal()" style="background:none; color:white; border:none; margin-right:20px; cursor:pointer;">キャンセル</button>
                 <button onclick="submitThread()" class="create-btn">投稿する</button>
@@ -88,13 +68,8 @@
         </div>
     </div>
 
-    <footer>
-        <p>&copy; 2026 PilotSky Team</p>
-    </footer>
-
     <script src="script.js"></script>
     <script>
-        // bbs.html固有のUI制御
         function openModal() { document.getElementById('modal').style.display = 'flex'; }
         function closeModal() { document.getElementById('modal').style.display = 'none'; }
     </script>
