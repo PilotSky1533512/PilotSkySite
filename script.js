@@ -260,50 +260,53 @@ window.onload = async () => {
     fetchBBS();
 };
 
-async function sendChatMessage() {
-    // 1. URL定義
-    const CHAT_URL = "https://console.firebase.google.com/project/pilotsky1533512officialsite/";
-    
-    const input = document.getElementById('chat-input');
-    if (!input || !input.value) return;
+const CHAT_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/chat.json";
 
-    // 2. ユーザー情報の取得
+// チャットメッセージを送信
+async function sendChatMessage() {
+    const input = document.getElementById('chat-input');
+    if (!input.value) return;
+
+    const isGuest = !localStorage.getItem('discord_access_token');
+    const userName = isGuest ? "***POS(PilotSkyOfficalSite)未認証ユーザー***" : currentUser.name;
+    // 掲示板と同じロジックでユーザー情報を取得
     const userData = JSON.parse(localStorage.getItem('discord_user'));
     
     let userName = "***POS(PilotSkyOfficalSite)未認証ユーザー***";
-    let userIcon = "https://via.placeholder.com/30"; 
+    let userIcon = "https://via.placeholder.com/30"; // デフォルトアイコン
 
     if (userData) {
         userName = userData.global_name || userData.username;
-        // アイコンURLの組み立て（userData.avatarが無い場合の予備も追加）
-        userIcon = userData.avatar 
-            ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
-            : "https://via.placeholder.com/30";
+        userIcon = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
     }
 
     const msgData = {
         user: userName,
-        icon: userIcon,
+        icon: userIcon, // アイコンURLも保存
         text: input.value,
         timestamp: Date.now()
     };
 
-    try {
-        // 3. Firebaseへ送信
-        const response = await fetch(CHAT_URL, { 
-            method: 'POST', 
-            body: JSON.stringify(msgData) 
-        });
+    await fetch(CHAT_URL, { method: 'POST', body: JSON.stringify(msgData) });
+    input.value = "";
+    fetchChat();
+}
 
-        if (!response.ok) throw new Error("送信に失敗しました");
+// チャット履歴を取得して表示
+async function fetchChat() {
+    const box = document.getElementById('chat-box');
+    if (!box) return;
+    const res = await fetch(CHAT_URL);
+    const data = await res.json();
+    if (!data) return;
 
-        // 4. 入力欄を空にして、画面を即座に更新する
-        input.value = "";
-        if (typeof fetchChat === "function") {
-            fetchChat(); 
-        }
-    } catch (error) {
-        console.error("エラーが発生しました:", error);
-        alert("メッセージを送れませんでした。");
-    }
+    box.innerHTML = "";
+    Object.values(data).forEach(m => {
+        box.innerHTML += `
+            <div class="msg">
+                <div class="msg-user">${m.user}</div>
+                <div class="msg-text">${m.text}</div>
+            </div>`;
+    });
+    box.scrollTop = box.scrollHeight; // 最下部へスクロール
 }
