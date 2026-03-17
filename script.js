@@ -261,27 +261,49 @@ window.onload = async () => {
 };
 
 async function sendChatMessage() {
+    // 1. URL定義
+    const CHAT_URL = "https://console.firebase.google.com/project/pilotsky1533512officialsite/";
+    
     const input = document.getElementById('chat-input');
-    if (!input.value) return;
+    if (!input || !input.value) return;
 
-    // 掲示板と同じロジックでユーザー情報を取得
+    // 2. ユーザー情報の取得
     const userData = JSON.parse(localStorage.getItem('discord_user'));
     
     let userName = "***POS(PilotSkyOfficalSite)未認証ユーザー***";
-    let userIcon = "https://via.placeholder.com/30"; // デフォルトアイコン
+    let userIcon = "https://via.placeholder.com/30"; 
 
     if (userData) {
         userName = userData.global_name || userData.username;
-        userIcon = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+        // アイコンURLの組み立て（userData.avatarが無い場合の予備も追加）
+        userIcon = userData.avatar 
+            ? `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`
+            : "https://via.placeholder.com/30";
     }
 
     const msgData = {
         user: userName,
-        icon: userIcon, // アイコンURLも保存
+        icon: userIcon,
         text: input.value,
         timestamp: Date.now()
     };
 
-    await fetch(CHAT_URL, { method: 'POST', body: JSON.stringify(msgData) });
-    input.value = "";
+    try {
+        // 3. Firebaseへ送信
+        const response = await fetch(CHAT_URL, { 
+            method: 'POST', 
+            body: JSON.stringify(msgData) 
+        });
+
+        if (!response.ok) throw new Error("送信に失敗しました");
+
+        // 4. 入力欄を空にして、画面を即座に更新する
+        input.value = "";
+        if (typeof fetchChat === "function") {
+            fetchChat(); 
+        }
+    } catch (error) {
+        console.error("エラーが発生しました:", error);
+        alert("メッセージを送れませんでした。");
+    }
 }
