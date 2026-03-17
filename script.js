@@ -265,47 +265,62 @@ const CHAT_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.co
 // チャットメッセージを送信
 async function sendChatMessage() {
     const input = document.getElementById('chat-input');
-    if (!input.value) return;
+    if (!input || !input.value) return;
 
-    const isGuest = !localStorage.getItem('discord_access_token');
-    const userName = isGuest ? "***POS(PilotSkyOfficalSite)未認証ユーザー***" : currentUser.name;
-    // 掲示板と同じロジックでユーザー情報を取得
+    // ローカルストレージからDiscordユーザー情報を取得
     const userData = JSON.parse(localStorage.getItem('discord_user'));
     
     let userName = "***POS(PilotSkyOfficalSite)未認証ユーザー***";
     let userIcon = "https://via.placeholder.com/30"; // デフォルトアイコン
 
     if (userData) {
+        // 連携済みなら名前とアイコンをセット
         userName = userData.global_name || userData.username;
-        userIcon = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+        if (userData.avatar) {
+            userIcon = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+        }
     }
 
     const msgData = {
         user: userName,
-        icon: userIcon, // アイコンURLも保存
+        icon: userIcon,
         text: input.value,
         timestamp: Date.now()
     };
 
-    await fetch(CHAT_URL, { method: 'POST', body: JSON.stringify(msgData) });
-    input.value = "";
-    fetchChat();
+    try {
+        await fetch(CHAT_URL, { method: 'POST', body: JSON.stringify(msgData) });
+        input.value = "";
+        fetchChat(); // 送信後に更新
+    } catch (e) {
+        console.error("送信エラー:", e);
+    }
 }
 
 // チャット履歴を取得して表示
 async function fetchChat() {
     const box = document.getElementById('chat-box');
     if (!box) return;
+
     const res = await fetch(CHAT_URL);
     const data = await res.json();
     if (!data) return;
 
+    // 重複表示を防ぐために一旦クリア
     box.innerHTML = "";
+
+    // 掲示板のようにアイコン付きで表示
     Object.values(data).forEach(m => {
+        // アイコンがない古いデータへの対策
+        const iconSrc = m.icon || "https://via.placeholder.com/30";
+        
         box.innerHTML += `
-            <div class="msg">
-                <div class="msg-user">${m.user}</div>
-                <div class="msg-text">${m.text}</div>
+            <div class="msg" style="display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px;">
+                <img src="${iconSrc}" style="width:35px; height:35px; border-radius:50%; border: 1px solid #444;">
+                <div>
+                    <div class="msg-user" style="font-size: 0.8rem; color: #ffa500; font-weight: bold;">${m.user}</div>
+                    <div class="msg-text" style="background: #222; padding: 8px 12px; border-radius: 0 10px 10px 10px; margin-top: 4px; color: #fff;">${m.text}</div>
+                </div>
             </div>`;
     });
     box.scrollTop = box.scrollHeight; // 最下部へスクロール
