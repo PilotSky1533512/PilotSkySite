@@ -260,42 +260,28 @@ window.onload = async () => {
     fetchBBS();
 };
 
-const CHAT_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/chat.json";
-
-// チャットメッセージを送信
 async function sendChatMessage() {
     const input = document.getElementById('chat-input');
     if (!input.value) return;
 
-    const isGuest = !localStorage.getItem('discord_access_token');
-    const userName = isGuest ? "***POS(PilotSkyOfficalSite)未認証ユーザー***" : currentUser.name;
+    // 掲示板と同じロジックでユーザー情報を取得
+    const userData = JSON.parse(localStorage.getItem('discord_user'));
+    
+    let userName = "***POS(PilotSkyOfficalSite)未認証ユーザー***";
+    let userIcon = "https://via.placeholder.com/30"; // デフォルトアイコン
+
+    if (userData) {
+        userName = userData.global_name || userData.username;
+        userIcon = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+    }
 
     const msgData = {
         user: userName,
+        icon: userIcon, // アイコンURLも保存
         text: input.value,
         timestamp: Date.now()
     };
 
     await fetch(CHAT_URL, { method: 'POST', body: JSON.stringify(msgData) });
     input.value = "";
-    fetchChat();
-}
-
-// チャット履歴を取得して表示
-async function fetchChat() {
-    const box = document.getElementById('chat-box');
-    if (!box) return;
-    const res = await fetch(CHAT_URL);
-    const data = await res.json();
-    if (!data) return;
-
-    box.innerHTML = "";
-    Object.values(data).forEach(m => {
-        box.innerHTML += `
-            <div class="msg">
-                <div class="msg-user">${m.user}</div>
-                <div class="msg-text">${m.text}</div>
-            </div>`;
-    });
-    box.scrollTop = box.scrollHeight; // 最下部へスクロール
 }
