@@ -271,7 +271,7 @@ async function sendChatMessage() {
     const userData = JSON.parse(localStorage.getItem('discord_user'));
     
     // デフォルト値（未認証）
-    let displayName = "***POS(PilotSkyOfficalSite)未認証ユーザー***";
+    let displayName = "***POS(PilotSkyOfficalSite)ユーザー***";
     let displayIcon = "https://via.placeholder.com/30"; 
 
     // 認証済みなら上書き
