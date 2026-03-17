@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>PilotSky | 連携チャット</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        #chat-box { height: 400px; overflow-y: auto; background: #000; border: 1px solid #333; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+        .msg { margin-bottom: 10px; border-bottom: 1px solid #111; padding-bottom: 5px; }
+        .msg-user { color: var(--accent-color); font-weight: bold; font-size: 0.8rem; }
+        .msg-text { margin-top: 3px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>POS & Discord連携チャット</h1>
+        <div id="chat-box"></div>
+        
+        <div class="content-box">
+            <input type="text" id="chat-input" placeholder="メッセージを入力..." style="width:80%; padding:10px; background:#000; color:#fff; border:1px solid #444;">
+            <button onclick="sendChatMessage()" class="btn" style="width:18%;">送信</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        // チャット専用の初期化
+        window.onload = () => { fetchChat(); setInterval(fetchChat, 3000); }; // 3秒ごとに更新
+    </script>
+</body>
+</html>
