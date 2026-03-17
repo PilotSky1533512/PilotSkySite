@@ -262,42 +262,39 @@ window.onload = async () => {
 
 const CHAT_URL = "https://pilotsky1533512officialsite-default-rtdb.firebaseio.com/chat.json";
 
-// チャットメッセージを送信
+// メッセージ送信
 async function sendChatMessage() {
     const input = document.getElementById('chat-input');
     if (!input || !input.value) return;
 
-    // ローカルストレージからDiscordユーザー情報を取得
+    // ローカルストレージから情報を取得
     const userData = JSON.parse(localStorage.getItem('discord_user'));
     
-    let userName = "***POS(PilotSkyOfficalSite)未認証ユーザー***";
-    let userIcon = "https://via.placeholder.com/30"; // デフォルトアイコン
+    // デフォルト値（未認証）
+    let displayName = "***POS(PilotSkyOfficalSite)未認証ユーザー***";
+    let displayIcon = "https://via.placeholder.com/30"; 
 
+    // 認証済みなら上書き
     if (userData) {
-        // 連携済みなら名前とアイコンをセット
-        userName = userData.global_name || userData.username;
+        displayName = `***POS(PilotSkyOfficalSite)ユーザー: ${userData.global_name || userData.username}***`;
         if (userData.avatar) {
-            userIcon = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
+            displayIcon = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
         }
     }
 
     const msgData = {
-        user: userName,
-        icon: userIcon,
+        user: displayName,
+        icon: displayIcon,
         text: input.value,
         timestamp: Date.now()
     };
 
-    try {
-        await fetch(CHAT_URL, { method: 'POST', body: JSON.stringify(msgData) });
-        input.value = "";
-        fetchChat(); // 送信後に更新
-    } catch (e) {
-        console.error("送信エラー:", e);
-    }
+    await fetch(CHAT_URL, { method: 'POST', body: JSON.stringify(msgData) });
+    input.value = "";
+    fetchChat();
 }
 
-// チャット履歴を取得して表示
+// メッセージ表示
 async function fetchChat() {
     const box = document.getElementById('chat-box');
     if (!box) return;
@@ -306,10 +303,7 @@ async function fetchChat() {
     const data = await res.json();
     if (!data) return;
 
-    // 重複表示を防ぐために一旦クリア
     box.innerHTML = "";
-
-    // 掲示板のようにアイコン付きで表示
     Object.values(data).forEach(m => {
         // アイコンがない古いデータへの対策
         const iconSrc = m.icon || "https://via.placeholder.com/30";
@@ -323,5 +317,5 @@ async function fetchChat() {
                 </div>
             </div>`;
     });
-    box.scrollTop = box.scrollHeight; // 最下部へスクロール
+    box.scrollTop = box.scrollHeight;
 }
