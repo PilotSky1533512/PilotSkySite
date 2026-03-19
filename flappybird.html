@@ -91,7 +91,7 @@
             });
         }
 
-        function update() {
+function update() {
             if (isGameOver) return;
 
             // 鳥の物理演算
@@ -110,12 +110,14 @@
                 pipes.push({
                     x: canvas.width,
                     top: topHeight,
-                    bottom: canvas.height - topHeight - pipeGap
+                    bottom: canvas.height - topHeight - pipeGap,
+                    passed: false // スコア加算済みかどうかのフラグ
                 });
             }
 
             // パイプの移動と判定
-            pipes.forEach((pipe, index) => {
+            for (let i = pipes.length - 1; i >= 0; i--) {
+                let pipe = pipes[i];
                 pipe.x -= 3;
 
                 // 当たり判定
@@ -127,17 +129,18 @@
                     gameOver();
                 }
 
-                // スコア加算
-                if (pipe.x === 20) { // 鳥を通り過ぎた瞬間
+                // 【修正ポイント】スコア加算：鳥の左端が土管の右端を越えたら
+                if (!pipe.passed && bird.x > pipe.x + pipeWidth) {
                     score++;
+                    pipe.passed = true;
                     scoreBoard.innerText = "Score: " + score;
                 }
 
                 // 画面外に出たパイプを削除
                 if (pipe.x + pipeWidth < 0) {
-                    pipes.splice(index, 1);
+                    pipes.splice(i, 1);
                 }
-            });
+            }
 
             frame++;
         }
