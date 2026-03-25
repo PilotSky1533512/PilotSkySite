@@ -1,0 +1,25 @@
+body {
+  background-color: rgba(0, 0, 0, 0);
+  margin: 0px auto;
+  padding: 20px;
+  overflow: hidden;
+  /* 文字色を赤に変更 */
+  color: #ff0000; 
+  font-size: 64px; 
+  font-family: "Hiragino Sans", "Meiryo", sans-serif;
+  font-weight: bold;
+  /* 文字の周りに白い縁取りをつけると黒い画面でも見やすくなります */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+body::after {
+  content: '準備中';
+  animation: dots 2s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: '準備中'; }
+  40% { content: '準備中.'; }
+  60% { content: '準備中..'; }
+  80%, 100% { content: '準備中...'; }
+}
