@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* OBS透過用の設定 */
+        body {
+            margin: 0;
+            padding: 20px;
+            overflow: hidden;
+            background-color: rgba(0, 0, 0, 0); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: white;
+        }
+
+        .timer-container {
+            width: 380px;
+            background-color: rgba(15, 15, 15, 0.85); /* 半透明の黒 */
+            border: 3px solid #ffa500; /* パイロットスカイカラー */
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .label {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #ffa500;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .countdown {
+            font-size: 3rem;
+            font-weight: 900;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+            display: flex;
+            justify-content: center;
+            align-items: baseline;
+        }
+
+        .unit {
+            font-size: 1rem;
+            margin: 0 4px;
+            color: #ccc;
+        }
+
+        .ms-digital {
+            font-size: 1.8rem;
+            color: #ff4500;
+            margin-left: 10px;
+        }
+
+        .clock-section {
+            font-size: 1.1rem;
+            color: #999;
+            border-top: 1px solid #444;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+
+        #current-clock {
+            color: #eee;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="timer-container">
+        <div class="label" id="title">配信終了まで</div>
+        
+        <div class="countdown">
+            <span id="h">0</span><span class="unit">時</span>
+            <span id="m">0</span><span class="unit">分</span>
+            <span id="s">0</span><span class="unit">秒</span>
+            <span class="ms-digital">. <span id="ms">0</span></span>
+        </div>
+        
+        <div class="clock-section">
+            現在時刻 <span id="current-clock">00:00:00</span>
+        </div>
+    </div>
+
+    <script>
+        // ================= CONFIG =================
+        const CONFIG = {
+            title: "配信終了まで", // 表示タイトル
+            targetDate: "2026-03-25T23:59:59" // 目標時刻 (年-月-日T時:分:秒)
+        };
+        // ==========================================
+
+        document.getElementById('title').innerText = CONFIG.title;
+        const target = new Date(CONFIG.targetDate).getTime();
+
+        function update() {
+            const now = new Date();
+            
+            // 現在時刻の表示
+            document.getElementById('current-clock').innerText = now.toLocaleTimeString('ja-JP', { hour12: false });
+
+            // 残り時間の計算
+            const diff = target - now.getTime();
+
+            if (diff <= 0) {
+                document.getElementById('h').innerText = "0";
+                document.getElementById('m').innerText = "0";
+                document.getElementById('s').innerText = "0";
+                document.getElementById('ms').innerText = "0";
+                return;
+            }
+
+            const h = Math.floor(diff / (1000 * 60 * 60));
+            const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const s = Math.floor((diff % (1000 * 60)) / 1000);
+            const ms = Math.floor((diff % 1000) / 100); // 0.1秒単位
+
+            document.getElementById('h').innerText = h;
+            document.getElementById('m').innerText = m;
+            document.getElementById('s').innerText = s;
+            document.getElementById('ms').innerText = ms;
+        }
+
+        // 0.1秒ごとに実行
+        setInterval(update, 100);
+        update();
+    </script>
+</body>
+</html>
